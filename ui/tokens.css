@@ -1,0 +1,339 @@
+/* ==========================================================================
+   9barra7 Hub · Tokens
+   Fonte única de verdade para cor, tipo, espaço, raio, sombra e movimento.
+   Derivado de IA Studio (azul + lima), PromptHub (laranja) e Cora (tema escuro,
+   verde-lima e turquesa). Os neutros quentes são compartilhados pelos três.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../assets/fontes/DMSans-latin.woff2') format('woff2');
+  font-weight: 100 1000;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../assets/fontes/DMSans-latin-ext.woff2') format('woff2');
+  font-weight: 100 1000;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  color-scheme: light;
+
+  /* ---- Primitivos (não use direto nos componentes) ---------------------- */
+  --p-preto: #000000;
+  --p-grafite-900: #111111;
+  --p-grafite-800: #1c1c1c;
+  --p-pedra-700: #5b5b57;
+  --p-pedra-500: #8e8e88;
+  --p-pedra-300: #d2d2cb;
+  --p-pedra-200: #e4e4df;
+  --p-pedra-100: #efefeb;
+  --p-pedra-50:  #f5f5f3;   /* off-white da Academy */
+  --p-branco:    #ffffff;
+
+  /* 9BARRA7 Academy, paleta institucional: preto, branco, off-white #f5f5f3,
+     verde #b3ff9f (CTA, acentos), roxo #a4a1f3 (acentos, UI), cinza #b9c2cc (estrutura).
+     Roxo 500/600 são o mesmo matiz escurecido para passar contraste sobre branco
+     (500: 4,0:1 para preenchimento e foco; 600: 5,5:1 para texto e links). */
+  --p-verde-marca: #b3ff9f;
+  --p-verde-marca-400: #a2f28b;
+  --p-roxo-300: #a4a1f3;
+  --p-roxo-500: #736eed;
+  --p-roxo-600: #5953e9;
+  --p-cinza-marca: #b9c2cc;
+  --p-amarelo-300: #f7e549;  /* Workshop Acelera Render com IA */
+
+  --p-azul-500: #316cf6;   /* IA Studio */
+  --p-azul-600: #2757d8;
+  --p-azul-700: #1f47b3;
+  --p-lima-300: #ddfe6f;   /* IA Studio */
+  --p-lima-400: #cbf252;
+  --p-verde-200: #c4fba7;  /* Cora */
+  --p-verde-300: #a5f37d;
+  --p-turquesa-200: #adecdf; /* Cora */
+  --p-turquesa-700: #196c5b;
+  --p-laranja-500: #fb6616; /* PromptHub */
+  --p-laranja-600: #e0570d;
+  --p-vermelho-600: #c4443a;
+  --p-vermelho-700: #a6342b;
+  --p-ambar-500: #d98a00;
+  --p-ambar-700: #8a5700;
+  --p-verde-700: #1f7a44;
+
+  /* ---- Fundo e superfícies --------------------------------------------- */
+  --fundo: var(--p-pedra-50);           /* tela do app */
+  --fundo-2: var(--p-pedra-100);        /* áreas rebaixadas, trilhos */
+  --superficie: var(--p-branco);        /* cards, campos, painéis */
+  --superficie-2: var(--p-pedra-50);    /* hover de linha, blocos internos */
+  --superficie-3: var(--p-pedra-100);   /* pressionado, skeleton */
+  --superficie-inversa: var(--p-preto); /* seções escuras, tooltip */
+  --sobreposicao: rgba(17, 17, 17, 0.42);
+  --vidro: rgba(255, 255, 255, 0.72);
+  --vidro-filtro: blur(18px) saturate(1.8);
+
+  /* ---- Texto ------------------------------------------------------------ */
+  --texto: var(--p-grafite-900);
+  --texto-2: var(--p-pedra-700);       /* apoio: 6.6:1 sobre branco */
+  --texto-3: #74746e;                  /* legendas: 4.6:1 sobre branco */
+  --texto-desab: var(--p-pedra-500);
+  --texto-inverso: var(--p-branco);
+  --texto-inverso-2: rgba(255, 255, 255, 0.74);
+  --texto-link: var(--p-roxo-600);
+
+  /* ---- Bordas ----------------------------------------------------------- */
+  --borda: var(--p-pedra-200);
+  --borda-forte: var(--p-pedra-300);
+  --borda-hover: var(--p-grafite-900);
+  --borda-inversa: rgba(255, 255, 255, 0.14);
+
+  /* ---- Ações ------------------------------------------------------------ */
+  --acao: var(--p-preto);              /* primário: pílula preta */
+  --acao-hover: var(--p-grafite-800);
+  --sobre-acao: var(--p-branco);
+  --acento: var(--p-roxo-500);         /* seleção, foco, progresso, links */
+  --acento-hover: var(--p-roxo-600);
+  --acento-fraco: rgba(164, 161, 243, 0.22);
+  --acento-texto: var(--p-roxo-600);
+  --sobre-acento: var(--p-branco);
+  --destaque: var(--p-verde-marca);    /* CTA de marca, novidade, créditos */
+  --destaque-hover: var(--p-verde-marca-400);
+  --sobre-destaque: var(--p-preto);
+  --foco: var(--p-roxo-500);
+
+  /* ---- Feedback --------------------------------------------------------- */
+  --sucesso: var(--p-verde-700);
+  --sucesso-fundo: #e7f5ec;
+  --sucesso-borda: #bfe3cc;
+  --aviso: var(--p-ambar-700);
+  --aviso-solido: var(--p-ambar-500);
+  --aviso-fundo: #fdf3e0;
+  --aviso-borda: #f3dcae;
+  --erro: var(--p-vermelho-600);
+  --erro-hover: var(--p-vermelho-700);
+  --erro-fundo: #fbeceb;
+  --erro-borda: #f1c9c5;
+  --info: var(--p-azul-600);
+  --info-fundo: #ebf1fe;
+  --info-borda: #c8d8fc;
+
+  /* ---- Produtos do ecossistema (categorias) ------------------------------------ */
+  --cat-studio: var(--p-azul-500);     --cat-studio-fundo: #ebf1fe;   --cat-studio-texto: #1f47b3;
+  --cat-prompthub: var(--p-laranja-500); --cat-prompthub-fundo: #fff0e6; --cat-prompthub-texto: #a3400a;
+  --cat-cora: var(--p-verde-300);      --cat-cora-fundo: #edfde3;     --cat-cora-texto: #256b2a;
+  --cat-academy: var(--p-grafite-900); --cat-academy-fundo: var(--p-pedra-100); --cat-academy-texto: var(--p-grafite-900);
+  --cat-agentes: var(--p-turquesa-200); --cat-agentes-fundo: #e6f7f3; --cat-agentes-texto: var(--p-turquesa-700);
+
+  /* ---- Tipografia ------------------------------------------------------- */
+  --fonte: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fonte-mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --t-display: 500 clamp(34px, 4.8vw, 60px)/1.06 var(--fonte);
+  --t-h1: 500 clamp(28px, 3.4vw, 40px)/1.12 var(--fonte);
+  --t-h2: 500 clamp(22px, 2.2vw, 28px)/1.2 var(--fonte);
+  --t-h3: 500 20px/1.3 var(--fonte);
+  --t-h4: 500 17px/1.35 var(--fonte);
+  --t-corpo-g: 400 17px/1.55 var(--fonte);
+  --t-corpo: 400 15px/1.55 var(--fonte);
+  --t-corpo-p: 400 14px/1.5 var(--fonte);
+  --t-legenda: 400 13px/1.45 var(--fonte);
+  --t-rotulo: 500 13px/1.3 var(--fonte);
+  --t-sobrelinha: 500 11px/1.3 var(--fonte); /* + caixa alta e --tracking-sobrelinha */
+  --t-codigo: 400 13px/1.65 var(--fonte-mono);
+
+  --tracking-display: -0.038em;
+  --tracking-h1: -0.032em;
+  --tracking-h2: -0.024em;
+  --tracking-h3: -0.016em;
+  --tracking-h4: -0.01em;
+  --tracking-sobrelinha: 0.1em;
+
+  /* ---- Espaço (base 4) -------------------------------------------------- */
+  --e-0: 2px;
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 24px;
+  --e-6: 32px;
+  --e-7: 48px;
+  --e-8: 64px;
+  --e-9: 96px;
+
+  /* ---- Raios ------------------------------------------------------------ */
+  --r-xs: 6px;    /* checkbox, kbd, chips de código */
+  --r-sm: 10px;   /* campos pequenos, itens de menu */
+  --r-md: 14px;   /* campos, menus, alertas */
+  --r-lg: 20px;   /* cards, modais */
+  --r-xl: 28px;   /* campo de prompt, gaveta */
+  --r-pill: 9999px;
+
+  /* ---- Sombras (poucas: o sistema prefere bordas) ----------------------- */
+  --sombra-0: none;
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sombra-2: 0 4px 16px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --sombra-3: 0 8px 32px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --sombra-4: 0 24px 64px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --anel-foco: 0 0 0 3px rgba(115, 110, 237, 0.3);
+  --anel-erro: 0 0 0 3px rgba(196, 68, 58, 0.20);
+
+  /* ---- Tamanhos de controle -------------------------------------------- */
+  --ctrl-p: 32px;
+  --ctrl-m: 40px;
+  --ctrl-g: 48px;
+  --icone-p: 16px;
+  --icone-m: 20px;
+  --icone-g: 24px;
+  --icone-traco: 1.75;
+
+  /* ---- Movimento -------------------------------------------------------- */
+  --easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --tr-rapida: 140ms;
+  --tr-padrao: 180ms;
+  --tr-painel: 260ms;
+  /* Curvas além de --easing (entradas, hover, toque). Nunca ease-in em UI. */
+  --curva-movimento: cubic-bezier(0.77, 0, 0.175, 1);  /* algo que se desloca na tela */
+  --curva-gaveta: cubic-bezier(0.32, 0.72, 0, 1);      /* gavetas e painéis */
+
+  /* ---- Camadas ---------------------------------------------------------- */
+  --z-menu: 40;
+  --z-gaveta: 60;
+  --z-modal: 70;
+  --z-toast: 90;
+  --z-dica: 100;
+}
+
+/* ---- Tema escuro (base Cora) -------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fundo: #141416;
+  --fundo-2: #1a1a1e;
+  --superficie: #1a1a1e;
+  --superficie-2: #222227;
+  --superficie-3: #2a2a30;
+  --superficie-inversa: #f2f2f0;
+  --sobreposicao: rgba(0, 0, 0, 0.6);
+  --vidro: rgba(26, 26, 30, 0.72);
+
+  --texto: #f2f2f0;
+  --texto-2: #b8b8b2;
+  --texto-3: #9a9a94;
+  --texto-desab: #6a6a66;
+  --texto-inverso: #111111;
+  --texto-inverso-2: rgba(17, 17, 17, 0.7);
+  --texto-link: #c3c1f8;
+
+  --borda: #33333a;
+  --borda-forte: #44444c;
+  --borda-hover: #f2f2f0;
+
+  --acao: #f2f2f0;
+  --acao-hover: #ffffff;
+  --sobre-acao: #111111;
+  --acento: var(--p-roxo-300);
+  --acento-hover: #bcbaf7;
+  --acento-fraco: rgba(164, 161, 243, 0.18);
+  --acento-texto: #c3c1f8;
+  --foco: var(--p-roxo-300);
+
+  --sucesso: #7bd3a0;  --sucesso-fundo: rgba(31, 122, 68, 0.18);  --sucesso-borda: rgba(123, 211, 160, 0.3);
+  --aviso: #f0c066;    --aviso-fundo: rgba(217, 138, 0, 0.16);    --aviso-borda: rgba(240, 192, 102, 0.3);
+  --erro: #f0877e;     --erro-hover: #f4a39c; --erro-fundo: rgba(196, 68, 58, 0.18); --erro-borda: rgba(240, 135, 126, 0.32);
+  --info: #8fb0ff;     --info-fundo: rgba(91, 139, 255, 0.14);    --info-borda: rgba(143, 176, 255, 0.3);
+
+  --cat-studio-fundo: rgba(91, 139, 255, 0.16);   --cat-studio-texto: #9dbaff;
+  --cat-prompthub-fundo: rgba(251, 102, 22, 0.16); --cat-prompthub-texto: #ffab7a;
+  --cat-cora-fundo: rgba(196, 251, 167, 0.14);     --cat-cora-texto: var(--p-verde-200);
+  --cat-academy-fundo: rgba(255, 255, 255, 0.08);  --cat-academy-texto: #f2f2f0; --cat-academy: #f2f2f0;
+  --cat-agentes-fundo: rgba(143, 221, 204, 0.16);  --cat-agentes-texto: #8fddcc;
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sombra-2: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --sombra-3: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --sombra-4: 0 24px 64px rgba(0, 0, 0, 0.6);
+  --anel-foco: 0 0 0 3px rgba(164, 161, 243, 0.4);
+}
+
+/* ==========================================================================
+   Temas por produto
+   Coloque data-produto="..." no <html> (ou em qualquer bloco) e a ação
+   principal, o acento e o destaque passam a ser os do produto. Todo o resto
+   (neutros, feedback, categorias, tipo, espaço) continua igual.
+
+   Produto novo: crie um bloco com até 5 cores. Só --produto-acao é
+   obrigatória na prática; o que faltar herda a base 9barra7.
+     [data-produto="novo"] {
+       --produto-acao: #1f6f5c;          botão principal
+       --produto-sobre-acao: #ffffff;    texto no botão (contraste ≥ 4,5:1)
+       --produto-acento: #1f6f5c;        seleção, foco, progresso, links
+                                         (precisa de ≥ 3:1 sobre branco; check é branco)
+       --produto-destaque: #ddfe6f;      novidade e upgrade
+       --produto-sobre-destaque: #000;
+     }
+   Hover, fundo fraco e versão de texto do acento são derivados sozinhos,
+   inclusive no tema escuro.
+   ========================================================================== */
+:root {
+  --acao-base: var(--p-preto);
+  --sobre-acao-base: var(--p-branco);
+  --acento-base: var(--p-roxo-500);
+  --destaque-base: var(--p-verde-marca);
+  --sobre-destaque-base: var(--p-preto);
+  --mistura: #000;       /* para onde o hover escurece */
+}
+:root[data-theme="dark"] {
+  --acao-base: #f2f2f0;
+  --sobre-acao-base: #111111;
+  --acento-base: var(--p-roxo-300);
+  --mistura: #fff;
+}
+:root[data-produto], [data-produto] {
+  --acao: var(--produto-acao, var(--acao-base));
+  --sobre-acao: var(--produto-sobre-acao, var(--sobre-acao-base));
+  --acao-hover: color-mix(in oklab, var(--acao) 87%, var(--mistura));
+  --acento: var(--produto-acento, var(--acento-base));
+  --acento-hover: color-mix(in oklab, var(--acento) 87%, var(--mistura));
+  --acento-fraco: color-mix(in srgb, var(--acento) 13%, transparent);
+  --acento-texto: color-mix(in oklab, var(--acento) 72%, var(--texto));
+  --foco: var(--acento);
+  --anel-foco: 0 0 0 3px color-mix(in srgb, var(--acento) 30%, transparent);
+  --destaque: var(--produto-destaque, var(--destaque-base));
+  --destaque-hover: color-mix(in oklab, var(--destaque) 90%, #000);
+  --sobre-destaque: var(--produto-sobre-destaque, var(--sobre-destaque-base));
+}
+
+/* 9BARRA7 Academy: a base (roxo no acento, verde no destaque, preto na ação) */
+[data-produto="academy"] { }
+
+/* IA Studio: azul na ação, lima no destaque */
+[data-produto="studio"] {
+  --produto-acao: #316cf6;
+  --produto-sobre-acao: #ffffff;
+  --produto-acento: #316cf6;
+  --produto-destaque: var(--p-lima-300);
+}
+
+/* PromptHub: laranja com texto escuro, como no site */
+[data-produto="prompthub"] {
+  --produto-acao: #fb6616;
+  --produto-sobre-acao: #111111;
+  --produto-acento: #e0570d;
+  --produto-destaque: var(--p-lima-300);
+}
+
+/* Cora: ação preta, acento turquesa escuro, destaque verde-lima */
+[data-produto="cora"] {
+  --produto-acento: #196c5b;
+  --produto-destaque: #c4fba7;
+}
+:root[data-theme="dark"][data-produto="cora"], :root[data-theme="dark"] [data-produto="cora"] { --produto-acento: #8fddcc; }
+
+/* Workshop Acelera Render com IA: turquesa e amarelo do pôster.
+   Nenhum dos dois passa 3:1 sobre branco, então o acento segue o roxo da Academy. */
+[data-produto="workshop"] {
+  --produto-destaque: var(--p-amarelo-300);
+  --produto-sobre-destaque: #111111;
+}

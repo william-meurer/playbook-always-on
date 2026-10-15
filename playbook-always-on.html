@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Playbook Always On · 9barra7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="ui/tokens.css">
+  <link rel="stylesheet" href="ui/base.css">
+  <link rel="stylesheet" href="ui/basicos.css">
+  <link rel="stylesheet" href="ui/site.css">
+  <style>
+    /* Ajustes específicos do Playbook sobre a base do 9barra7 UI */
+    .top-playbook {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--superficie) 88%, transparent);
+      backdrop-filter: var(--vidro-filtro);
+      -webkit-backdrop-filter: var(--vidro-filtro);
+      border-bottom: 1px solid var(--borda);
+    }
+    .top-playbook .envelope {
+      display: flex;
+      align-items: center;
+      gap: var(--e-4);
+      height: 60px;
+    }
+    .nav-playbook {
+      display: flex;
+      gap: var(--e-2);
+      margin-left: auto;
+    }
+    .nav-playbook a {
+      color: var(--texto-2);
+      font: var(--t-rotulo);
+      text-decoration: none;
+      padding: var(--e-2) var(--e-3);
+      border-radius: var(--r-sm);
+      transition: all var(--tr-rapida) var(--easing);
+    }
+    .nav-playbook a:hover {
+      color: var(--texto);
+      background: var(--superficie-2);
+    }
+    .bloco-regra {
+      background: var(--superficie-2);
+      border: 1px solid var(--borda);
+      border-radius: var(--r-md);
+      padding: var(--e-4) var(--e-5);
+    }
+    .grade-taticas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+      gap: var(--e-4);
+    }
+    .caixa-roteiro {
+      background: var(--fundo);
+      border: 1px solid var(--borda);
+      border-radius: var(--r-sm);
+      padding: var(--e-3) var(--e-4);
+      font: var(--t-corpo-p);
+      color: var(--texto);
+      line-height: 1.55;
+    }
+    .tabela-quadro {
+      width: 100%;
+      border-collapse: collapse;
+      font: var(--t-corpo-p);
+      text-align: left;
+    }
+    .tabela-quadro th {
+      padding: var(--e-3) var(--e-4);
+      font: var(--t-rotulo);
+      color: var(--texto-3);
+      border-bottom: 1px solid var(--borda-forte);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-sobrelinha);
+    }
+    .tabela-quadro td {
+      padding: var(--e-4);
+      border-bottom: 1px solid var(--borda);
+      vertical-align: top;
+      color: var(--texto);
+    }
+    .tabela-quadro tr:last-child td {
+      border-bottom: none;
+    }
+    #toast-msg {
+      position: fixed;
+      bottom: var(--e-5);
+      right: var(--e-5);
+      background: var(--acao);
+      color: var(--sobre-acao);
+      font: var(--t-rotulo);
+      padding: var(--e-3) var(--e-4);
+      border-radius: var(--r-sm);
+      box-shadow: var(--sombra-3);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all var(--tr-padrao) var(--easing);
+      z-index: var(--z-toast);
+      pointer-events: none;
+    }
+    #toast-msg.is-ativo {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="pagina">
+<script src="ui/icons.js"></script>
+
+<!-- Topo de Navegação -->
+<header class="top-playbook">
+  <div class="envelope">
+    <a class="marca" href="#topo" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+      <span class="t-h4" style="color:var(--texto);font-weight:700;">9BARRA7</span>
+      <span class="badge badge--p badge--contorno">Always On</span>
+    </a>
+    <nav class="nav-playbook">
+      <a href="#estrategia">1. Estratégia</a>
+      <a href="#carrossel">2. Tudo sobre Carrossel</a>
+      <a href="#reels">3. Tudo sobre Reels</a>
+      <a href="#calendarizacao">4. Calendarização</a>
+    </nav>
+    <button class="btn btn--discreto btn--icone" type="button" data-alternar-tema aria-label="Alternar tema" style="margin-left:8px;">
+      <svg class="ic ic--p" aria-hidden="true"><use href="#i-lua"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="topo">
+
+  <!-- Abertura -->
+  <section class="secao" style="padding-top:var(--e-7);padding-bottom:var(--e-6);">
+    <div class="envelope pilha" style="gap:var(--e-5);">
+      <span class="t-sobrelinha suave">Manual de Mensagem e Embalagem</span>
+      <h1 class="t-display" style="max-width:22ch;">Playbook Tático do Always On</h1>
+      <p class="t-corpo-g" style="color:var(--texto-2);max-width:54ch;">
+        Foco no papel de cada post, na mensagem que precisa ser dita e na forma de embalar essa mensagem para atrair arquitetos e gerar leads no CRM.
+      </p>
+
+      <div class="bloco-regra" style="max-width:70ch;">
+        <span class="t-sobrelinha suave" style="display:block;margin-bottom:var(--e-1);">A Regra de Ouro</span>
+        <p class="t-h4" style="color:var(--texto);">
+          Vendemos a imagem que aprova o projeto e mantém o arquiteto relevante, com fidelidade, consistência e método.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 1. ESTRATÉGIA                                                     -->
+  <!-- ================================================================= -->
+  <section id="estrategia" class="secao secao--superficie">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">01 · Estrutura</span>
+        <h2 class="t-h1">A Estratégia</h2>
+        <p>As duas forças do público, o papel de cada canal e o alinhamento com a consultoria Sobe.</p>
+      </div>
+
+      <!-- 1.1 As Forças de Mercado -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.1 As Duas Forças do Público</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          O conteúdo responde a dois dados concretos da pesquisa com os arquitetos:
+        </p>
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Fator nº 1 de Compra</span>
+            <h4 class="t-h4">Fidelidade e Qualidade (+78)</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              O arquiteto não compra arte conceitual. Ele precisa ter certeza de que o modelo do SketchUp sai renderizado com precisão de medidas, materiais e iluminação.
+            </p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Maior Objeção do Mercado</span>
+            <h4 class="t-h4">Inconsistência (86%)</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              86% dos profissionais reclamam que a IA altera a marcenaria ou muda o tom da madeira entre dois ângulos. O conteúdo precisa demonstrar consistência entre cenas em todas as semanas.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.2 O Papel dos Canais -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.2 O Papel Tático de Cada Canal</h3>
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo" style="color:var(--acento-texto);">Feed · Reels (3x por semana)</span>
+            <h4 class="t-h4">Descoberta e Alcance Frio</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              Alcança quem ainda não segue o perfil. Vídeos de 35 a 50 segundos apontando um erro ou entregando imagem pronta. Sem chamada de compra.
+            </p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo" style="color:var(--acento-texto);">Feed · Carrossel (3x por semana)</span>
+            <h4 class="t-h4">Nutrição Técnica e Captação CRM</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              Gera autoridade e capta leads no GoHighLevel. Entrega o método no feed e libera arquivos práticos via comentário de palavra-chave.
+            </p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo" style="color:var(--acento-texto);">Stories e Mensagens Diretas</span>
+            <h4 class="t-h4">Relacionamento e Venda</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              Rotina do estúdio em 3 turnos (manhã, tarde e noite), caixinha técnica de quinta-feira e condução para as páginas de compra do Workshop e Cora.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.3 As 4 Editorias -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.3 As 4 Editorias Estratégicas</h3>
+        <div class="cartao" style="padding:0;overflow:hidden;">
+          <table class="tabela-quadro">
+            <thead>
+              <tr>
+                <th>Editoria</th>
+                <th>Papel Tático</th>
+                <th>Mensagem Central</th>
+                <th>O que Evitar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Método e Fidelidade</strong></td>
+                <td>Combater o medo da IA que inventa coisas.</td>
+                <td>A IA só erra quando falta método de controle e lente. O render sai fiel ao projeto modelado.</td>
+                <td>Nunca prometer mágica ou botão milagroso.</td>
+              </tr>
+              <tr>
+                <td><strong>2. Critério e Aprovação</strong></td>
+                <td>Posicionar o olhar estético da Marilia.</td>
+                <td>O cliente sente quando a luz ou o reflexo parecem falsos. Mostramos os detalhes que garantem a aprovação.</td>
+                <td>Cortar palavras vazias como "revolucionar" ou jargões de tecnologia.</td>
+              </tr>
+              <tr>
+                <td><strong>3. Bastidor Real</strong></td>
+                <td>Provar autoridade com projetos reais.</td>
+                <td>Projetos entregues pelo escritório 9barra7: clientes exigentes, prazos curtos e solução na prática.</td>
+                <td>Não esconda erros: mostre o teste inicial antes da imagem final aprovada.</td>
+              </tr>
+              <tr>
+                <td><strong>4. Posição e Mercado</strong></td>
+                <td>Valorizar a profissão do arquiteto.</td>
+                <td>A IA é a nova prancheta. Quem decide o projeto é o profissional. Renderizar rápido protege o lucro.</td>
+                <td>Evitar terrorismo de que a IA vai substituir arquitetos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 1.4 Alinhamento Comercial -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.4 Alinhamento com os Lançamentos</h3>
+        
+        <!-- Looping Anual -->
+        <div class="cartao pilha" style="gap:var(--e-3);background:var(--superficie-2);">
+          <span class="t-sobrelinha suave">O Mapa Anual em Looping</span>
+          <h4 class="t-h4">Os 4 Ciclos Trimestrais de 55 Dias</h4>
+          <p class="t-corpo-p" style="color:var(--texto-2);">
+            A consultoria Sobe desenhou um modelo que roda em looping contínuo todo ano (Q1, Q2, Q3 e Q4). Cada ciclo tem 55 dias de campanha:
+          </p>
+          <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--e-2);">
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">1. Lote 0 · 3 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Aviso por e-mail e WhatsApp para a base interna sem tráfego pago.</p>
+            </div>
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">2. Lotes 1 e 2 · ~38 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Venda de ingressos com mídia paga e Always On captando leads na DM.</p>
+            </div>
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">3. Lote 3 · 7 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Último lote com escassez de preço até o sábado do Workshop (D0).</p>
+            </div>
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">4. Carrinho · 7 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Abertura do IA Studio de sábado a sexta 23h59 (downsell só no 1 a 1).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ciclo Atual 2026 -->
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">26/10 a 20/11</span>
+            <h4 class="t-h4">Lotes 1 e 2 do Workshop</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">Carrosséis focam em captar cadastros na DM para alimentar a lista de ingressos do Workshop.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">A partir de 09/11</span>
+            <h4 class="t-h4">Cora Aberto ao Público</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">Posts destacam fidelidade ao SketchUp e custo previsível de créditos. Stories convidam para o teste.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">21 a 27/11</span>
+            <h4 class="t-h4">Lote 3 · Black Friday</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">Pautas mostram o tempo perdido renderizando em softwares antigos. Stories em contagem regressiva.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">28/11 a 04/12</span>
+            <h4 class="t-h4">Carrinho IA Studio</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">O feed publica estudos de caso de alunos com projetos aprovados. Os Stories fecham as inscrições.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 2. TUDO SOBRE CARROSSEL                                           -->
+  <!-- ================================================================= -->
+  <section id="carrossel" class="secao">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">02 · Formato Feed</span>
+        <h2 class="t-h1">Tudo sobre Carrossel</h2>
+        <p>A ferramenta de retenção técnica no feed e geração diária de leads no CRM.</p>
+      </div>
+
+      <!-- 2.1 Papel -->
+      <div class="pilha" style="gap:var(--e-2);">
+        <h3 class="t-h3">2.1 O Papel Tático do Carrossel</h3>
+        <p class="t-corpo" style="color:var(--texto-2);max-width:64ch;">
+          O carrossel aprofunda o método e gera salvamento. Ele entrega o raciocínio completo no feed e usa a lâmina final para direcionar o arquiteto para a automação de DM no GoHighLevel.
+        </p>
+      </div>
+
+      <!-- 2.2 Estrutura 5 Batidas -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">2.2 A Estrutura em 5 Batidas (Lâmina por Lâmina)</h3>
+        <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâmina 1</span>
+            <h4 class="t-h4">The Hook</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Interrompe o scroll. Render de alto impacto e título apontando um erro, contraste ou tese.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâmina 2</span>
+            <h4 class="t-h4">The Promise</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Valida a capa. Resume o briefing em uma frase e garante que o conteúdo cumpre o que prometeu.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâminas 3 a 6</span>
+            <h4 class="t-h4">The Pull</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Desenvolvimento técnico. Mostra o erro inicial da IA, o porquê do problema e o teste intermediário.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâminas 7 e 8</span>
+            <h4 class="t-h4">The Payoff</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">A entrega do método. Comparativo do modelo com o render aprovado e a regra prática de execução.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâmina Final</span>
+            <h4 class="t-h4">The Ask</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Ação direta de captação: foto da Marilia e chamada de comentário para receber o material na DM.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.3 Como Embalar no Carrossel -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">2.3 Como Embalar a Mensagem no Carrossel (Exemplos Reais)</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          As 6 lógicas de raciocínio para estruturar carrosséis de alta retenção e captação de leads:
+        </p>
+
+        <div class="grade-cards">
+          <!-- Modelo E -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Estudo de Caso Real · Modelo E (9 a 11 lâminas)</span>
+            <h4 class="t-h4">"A primeira imagem ensina as outras"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "A IA muda o teu projeto a cada ângulo. Como eu mantenho a série inteira no mesmo projeto."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 4 (Pull):</strong> Mostra duas imagens do mesmo modelo. Na segunda, a madeira do forro ripado mudou de cor. O cliente sente a inconsistência.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 5 a 8 (Payoff):</strong> Na primeira imagem a Marilia define os materiais que não podem mudar. O promptador cruza a imagem 1 com o ângulo 2. A marcenaria fica idêntica.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta PROMPT pra receber o promptador de consistência no direct."</div>
+            </div>
+          </div>
+
+          <!-- Modelo C -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Comparativo Lado a Lado · Modelo C (6 a 10 lâminas)</span>
+            <h4 class="t-h4">"É o mesmo projeto em todas as cenas"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "É o MESMO projeto em todas as tomadas."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 5 (Pull):</strong> Um par por lâmina com modelo SketchUp em cima e render da IA embaixo. Mesmo enquadramento e proporção.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 6 e 7 (Payoff):</strong> Variação de iluminação diurna e noturna sem mover nenhuma parede ou armário de lugar.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta MODELO pra receber a tabela de parâmetros na DM."</div>
+            </div>
+          </div>
+
+          <!-- Modelo B -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Checklist e Auditoria · Modelo B (7 a 9 lâminas)</span>
+            <h4 class="t-h4">"Erros que entregam render amador"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Se o teu render tem isso, o cliente percebe que é IA."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 6 (Pull):</strong> Um detalhe por tela: piso espelhado sem desgaste, quina sem chanfro e sombra sem contato. Critério passa ou não passa.</div>
+              <div class="caixa-roteiro"><strong>Lâmina 7 (Payoff):</strong> Checklist de 5 itens para revisar antes de enviar a apresentação para o cliente.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta CHECKLIST pra receber o PDF de auditoria no direct."</div>
+            </div>
+          </div>
+
+          <!-- Modelo D -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Quebra de Crença · Modelo D (7 a 8 lâminas)</span>
+            <h4 class="t-h4">"Prompt grande não salva"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Prompt com 50 palavras não vai salvar teu render de interiores."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 4 (Pull):</strong> A objeção comum: "Mas Marilia, me falaram que precisa descrever tudo..." Por que a IA ignora adjetivos vazios.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 5 e 6 (Payoff):</strong> O jeito errado (50 adjetivos) contra o jeito estruturado (referência física de luz e lente de câmera).</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta MITO pra receber o modelo de prompt limpo no direct."</div>
+            </div>
+          </div>
+
+          <!-- Modelo F -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Explicação Passo a Passo · Modelo F (8 a 10 lâminas)</span>
+            <h4 class="t-h4">"Como renderizar marcenaria sem derreter puxadores"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Como renderizar marcenaria sob medida sem a IA fundir puxador e gaveta."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 5 (Pull):</strong> Passo 1: exportar viewport crua sem materiais pesados. Passo 2: mapa de profundidade travando arestas. Passo 3: prompt de superfície fosca.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 6 e 7 (Payoff):</strong> Imagem final em zoom de detalhe comprovando a junção de topo e gaveta intacta.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta FLUXO pra receber o guia do passo a passo em PDF."</div>
+            </div>
+          </div>
+
+          <!-- Modelo G -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Diagnóstico e Autópsia · Modelo G (8 a 9 lâminas)</span>
+            <h4 class="t-h4">"Autópsia de um render reprovado"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Por que o cliente reprovou essa sala (e não foi o projeto)."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 5 (Pull):</strong> Análise com círculos vermelhos apontando os 3 erros fatais: luz solar sem direção coerente, reflexo artificial no teto e madeira sem veios.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 6 e 7 (Payoff):</strong> A mesma cena corrigida em 4 minutos aplicando o método de iluminação física.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta DIAGNOSTICO pra receber a folha de conferência de interiores."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.4 Automação de CRM -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">2.4 O Fluxo de Automação de Leads (GoHighLevel)</h3>
+        <div class="cartao pilha" style="gap:var(--e-3);background:var(--superficie-2);">
+          <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 1</span>
+              <strong class="t-rotulo">Chamada no Feed</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">A lâmina final indica a palavra exata em caixa alta (ex: <em>CRITERIO</em>).</p>
+            </div>
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 2</span>
+              <strong class="t-rotulo">DM em 10 Segundos</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">O webhook dispara mensagem automática da Marilia com o link de liberação.</p>
+            </div>
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 3</span>
+              <strong class="t-rotulo">Cadastro Curto</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">Página rápida no Framer ou GHL pedindo Nome, E-mail e WhatsApp.</p>
+            </div>
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 4</span>
+              <strong class="t-rotulo">Lead Qualificado</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">O contato recebe tag no CRM e entra nas mensagens de Lote 0 do Workshop e Cora.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 3. TUDO SOBRE REELS                                               -->
+  <!-- ================================================================= -->
+  <section id="reels" class="secao secao--superficie">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">03 · Vídeo Curto</span>
+        <h2 class="t-h1">Tudo sobre Reels</h2>
+        <p>A esteira de vídeos verticais focada exclusivamente em atrair novos arquitetos.</p>
+      </div>
+
+      <!-- 3.1 Papel -->
+      <div class="pilha" style="gap:var(--e-2);">
+        <h3 class="t-h3">3.1 O Papel Tático do Reel</h3>
+        <p class="t-corpo" style="color:var(--texto-2);max-width:64ch;">
+          O Reel é uma ferramenta de atração fria. Nenhum reel vende diretamente. A meta operacional é alcançar mais de 60% de contas não-seguidoras e conduzir os novos visitantes para o perfil.
+        </p>
+      </div>
+
+      <!-- 3.2 As 5 Batidas no Tempo -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">3.2 A Estrutura em 5 Batidas no Tempo (Régua de 45 Segundos)</h3>
+        <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">0 a 3s</span>
+            <h4 class="t-h4">1. The Hook</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Primeira frase dita direto no ponto, mostrando o erro em zoom ou o render pronto.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">3 a 8s</span>
+            <h4 class="t-h4">2. The Promise</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Validação rápida: "Vou te mostrar os dois comandos que corrigem isso na prática."</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">8 a 25s</span>
+            <h4 class="t-h4">3. The Pull</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Cortes rápidos mostrando o modelo cru ou o que deu errado antes de mostrar a solução.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">25 a 40s</span>
+            <h4 class="t-h4">4. The Payoff</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">A imagem aprovada com luz correta e medidas preservadas. A técnica utilizável.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">40 a 48s</span>
+            <h4 class="t-h4">5. The Ask</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Fecho fixo de autoridade da Marilia convidando para seguir o perfil.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.3 As 8 Famílias com Scripts -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">3.3 As 8 Famílias de Ganchos e Roteiros (Scripts Prontos)</h3>
+        <div class="grade-cards">
+          <!-- F1 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F1 · Erro Custoso</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Nomeia um erro que custa o cliente</h4>
+            <div class="caixa-roteiro">
+              "Esse render foi reprovado. E não foi por causa do projeto. O cliente não sabe termos de 3D, mas sente quando o piso reflete como espelho e não tem luz de contato. O problema não é a IA: é que a gente não deu pra ela a informação certa. Olha como muda quando a gente trava o ângulo da câmera e define o desgaste do material. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F2 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F2 · Resultado Antes</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Entrega a imagem pronta primeiro</h4>
+            <div class="caixa-roteiro">
+              "Essa imagem parece fotografia de revista de arquitetura, mas saiu direto dessa modelagem simples do SketchUp. O segredo não tá em encher o prompt de palavras mágicas: tá em como você ensina a IA a ler a geometria original sem inventar marcenaria. Repara na fidelidade dessa esquadria. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F3 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F3 · Contradição</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Derruba o senso comum do mercado</h4>
+            <div class="caixa-roteiro">
+              "Colocar ultra-realista 8k no teu prompt só tá deixando teu render com cara de falso. A IA não entende adjetivos vazios: ela precisa de referências óticas de lente, ângulo e iluminação física real. Quando você substitui adjetivo por física de iluminação, olha o que acontece com a cena. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F4 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F4 · Gravação de Tela</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Direto no software sem introdução</h4>
+            <div class="caixa-roteiro">
+              "É exatamente aqui que 90% dos arquitetos erram na hora de renderizar marcenaria com IA. Se você não travar o mapa de profundidade, o puxador derrete e a gaveta se funde na bancada. Olha o clique que resolve isso em 3 segundos. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F5 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F5 · Bastidor Real</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Entrega sob pressão real de prazo</h4>
+            <div class="caixa-roteiro">
+              "O cliente pediu uma versão noturna dessa fachada faltando duas horas pra reunião de apresentação. No fluxo antigo eu teria que refazer todo o setup de luz no V-Ray e esperar a noite inteira. Com o método, eu converti os pontos de luz na IA mantendo as esquadrias idênticas ao projeto. O projeto foi aprovado sem alterações. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F6 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F6 · Comparação com Critério</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Compara duas imagens com critério visual</h4>
+            <div class="caixa-roteiro">
+              "Qual dessas duas imagens foi feita por IA amadora? Repara nessa quina de gesso. Enquanto uma imagem tem sombra de contato e chanfro real, a outra funde o teto na parede sem oclusão de ambiente. É esse detalhe sutil que faz o cliente rejeitar a apresentação. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F7 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F7 · Explicação Rápida</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Passo a passo direto de um comando essencial</h4>
+            <div class="caixa-roteiro">
+              "Se a tua marcenaria tá saindo borrada na IA, você esqueceu dessa caixa de seleção. Quando você ativa o controle geométrico antes de gerar a cena, a IA mantém a espessura exata da prateleira e a quina do armário. Olha a diferença desse detalhe antes e depois do clique. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F8 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F8 · Checklist de 3 Pontos</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Conferência rápida antes de enviar a imagem</h4>
+            <div class="caixa-roteiro">
+              "Três coisas pra conferir no teu render antes de mandar pro cliente: primeiro, o reflexo do vidro tá alinhado com a janela? Segundo, o rodapé tem sombra de contato com o piso? Terceiro, a textura da madeira tá na mesma direção em todas as portas? Se passou nos três, pode apresentar com segurança. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.4 Fecho Fixo e Regras de Fala -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">3.4 O Fecho Obrigatório e Regras de Fala</h3>
+        <div class="bloco-regra">
+          <span class="t-sobrelinha suave">O Fecho Falado Fixo (Últimos 8 segundos)</span>
+          <p class="t-h4" style="color:var(--texto);margin-top:var(--e-1);">
+            "Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais conteúdos assim."
+          </p>
+        </div>
+
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <strong class="t-rotulo">Como a Marilia Fala</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Usa "a gente" e "tu" natural.</li>
+              <li>Frases curtas (mediana de 15 palavras).</li>
+              <li>Mostra o render ruim antes do bom para gerar confiança.</li>
+              <li>Explica o motivo técnico por trás de cada ajuste.</li>
+            </ul>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <strong class="t-rotulo">O que Evitar</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Sem "você" formal ou tom distante de folheto.</li>
+              <li>Não prometer economia de tempo no gancho (tempo perde de qualidade).</li>
+              <li>Sem frases prontas de curso ("invista no seu futuro").</li>
+              <li>Cortar travessões e construções negativas na fala.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 4. CALENDARIZAÇÃO                                                 -->
+  <!-- ================================================================= -->
+  <section id="calendarizacao" class="secao">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">04 · Operação</span>
+        <h2 class="t-h1">Calendarização</h2>
+        <p>A grade semanal 3x3, a rotação das lógicas de raciocínio e a esteira quinzenal.</p>
+      </div>
+
+      <!-- 4.1 Grade 3x3 -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.1 A Grade Semanal Fixa (3 Vídeos + 3 Carrosséis)</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          Alternância estrita de segunda a sábado. Domingo é dia de respiro do feed com rotina leve nos Stories.
+        </p>
+
+        <div class="cartao" style="padding:0;overflow:hidden;">
+          <table class="tabela-quadro">
+            <thead>
+              <tr>
+                <th>Dia</th>
+                <th>Formato</th>
+                <th>Lógica de Embalagem</th>
+                <th>Papel e Mensagem</th>
+                <th>Ação e CTA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Segunda</strong></td>
+                <td>Carrossel</td>
+                <td>Quebra de Crença</td>
+                <td>Desmonta um mito comum de mercado logo no início da semana.</td>
+                <td>Comenta MITO (CRM)</td>
+              </tr>
+              <tr>
+                <td><strong>Terça</strong></td>
+                <td>Reel</td>
+                <td>F1 · Erro Custoso</td>
+                <td>Alcança não-seguidores pelo risco do render falso que o cliente percebe.</td>
+                <td>Seguir perfil</td>
+              </tr>
+              <tr>
+                <td><strong>Quarta</strong></td>
+                <td>Carrossel</td>
+                <td>Checklist Passa/Não-Passa</td>
+                <td>Régua técnica com 5 pontos para conferir antes de apresentar o projeto.</td>
+                <td>Comenta CRITERIO (CRM)</td>
+              </tr>
+              <tr>
+                <td><strong>Quinta</strong></td>
+                <td>Reel</td>
+                <td>F4 · Gravação de Tela</td>
+                <td>Mostra na prática o clique no software sem introdução falada.</td>
+                <td>Seguir + Caixinha Stories</td>
+              </tr>
+              <tr>
+                <td><strong>Sexta</strong></td>
+                <td>Carrossel</td>
+                <td>Comparativo Lado a Lado</td>
+                <td>Fidelidade ao SketchUp e consistência entre cenas para salvar no fim de semana.</td>
+                <td>Comenta MODELO (CRM)</td>
+              </tr>
+              <tr>
+                <td><strong>Sábado</strong></td>
+                <td>Reel</td>
+                <td>F2 · Resultado Antes</td>
+                <td>Impacto visual imediato com render fotorrealista de projeto real do estúdio.</td>
+                <td>Seguir perfil</td>
+              </tr>
+              <tr>
+                <td style="color:var(--texto-3);">Domingo</td>
+                <td colspan="4" style="color:var(--texto-3);text-align:center;font-style:italic;">
+                  Respiro do Feed · Stories de rotina pessoal da Marilia e preparação para a semana
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.2 O Calendário Anual em Loop -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.2 O Mapa Anual de Campanhas Sobe (Looping Perpétuo)</h3>
+        <div class="cartao" style="padding:0;overflow:hidden;">
+          <table class="tabela-quadro">
+            <thead>
+              <tr>
+                <th>Ciclo</th>
+                <th>Sábado do Workshop</th>
+                <th>Janela de Ingressos</th>
+                <th>Carrinho IA Studio</th>
+                <th>Foco do Always On</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Ciclo Black Friday 2026</strong></td>
+                <td>28/11/2026</td>
+                <td>26/10 a 27/11 (Lote 3 termina na Black Friday)</td>
+                <td>28/11 a 04/12</td>
+                <td>Captação forte de leads na DM e casos de alunos provando consistência.</td>
+              </tr>
+              <tr>
+                <td><strong>Q1 2027 (Ano Novo)</strong></td>
+                <td>06/03/2027</td>
+                <td>Janeiro a 05/03 (Lote 1 fecha no Carnaval 08-09/02)</td>
+                <td>06/03 a 12/03</td>
+                <td>Planejamento anual dos escritórios e velocidade de entrega.</td>
+              </tr>
+              <tr>
+                <td><strong>Q2 2027 (Meio de Ano)</strong></td>
+                <td>05/06/2027</td>
+                <td>Abril a Maio (55 dias de campanha)</td>
+                <td>05/06 a 11/06</td>
+                <td>Foco em volume de projetos e captação perpétua para o Cora Render.</td>
+              </tr>
+              <tr>
+                <td><strong>Q3 2027 (Inverno)</strong></td>
+                <td>28/08/2027</td>
+                <td>Julho a Agosto (mantém 19 dias de distância do Q4)</td>
+                <td>28/08 a 03/09</td>
+                <td>Consistência geométrica e valorização do portfólio.</td>
+              </tr>
+              <tr>
+                <td><strong>Q4 2027 (Pico de Novembro)</strong></td>
+                <td>06/11/2027</td>
+                <td>Setembro a Outubro (fecha antes do pico de CPM da Black Friday)</td>
+                <td>06/11 a 12/11</td>
+                <td>Atração de profissionais que ainda não adotaram ferramentas de IA.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.3 Esteira Quinzenal RACI -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.3 Esteira Operacional: A Sprint Quinzenal de 14 Dias</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          Como a equipe fecha 6 Reels e 6 Carrosséis com um único bloco de gravação de duas horas da Marilia:
+        </p>
+
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">William Meurer</span>
+            <strong class="t-h4">Estratégia e Redação</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Escreve os 6 roteiros técnicos de Reels.</li>
+              <li>Redige a copy lâmina a lâmina dos 6 carrosséis.</li>
+              <li>Configura as automações e tags no GoHighLevel.</li>
+              <li>Audita as métricas semanais e a regra dos 30%.</li>
+            </ul>
+          </div>
+
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Marilia Fischer</span>
+            <strong class="t-h4">Voz e Autoridade</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Grava o bloco quinzenal de 2 horas (todos os ganchos juntos).</li>
+              <li>Conduz os Stories diários nos 3 turnos.</li>
+              <li>Responde à caixinha técnica de quinta-feira.</li>
+              <li>Fornece os modelos e arquivos dos projetos reais.</li>
+            </ul>
+          </div>
+
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Videomaker</span>
+            <strong class="t-h4">Montagem e Finalização</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Decupa e monta os vídeos no Premiere.</li>
+              <li>Aplica os modelos padronizados do Remotion.</li>
+              <li>Sobe o lote quinzenal aprovado com uma semana de folga.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<div id="toast-msg">Roteiro copiado para a área de transferência.</div>
+
+<script src="ui/b7.js"></script>
+<script>
+  B7.iniciar();
+
+  function copiarTexto(btn) {
+    const card = btn.closest('.cartao');
+    const box = card.querySelector('.caixa-roteiro');
+    if (!box) return;
+    const txt = box.innerText.trim();
+    navigator.clipboard.writeText(txt).then(() => {
+      const toast = document.getElementById('toast-msg');
+      toast.classList.add('is-ativo');
+      setTimeout(() => toast.classList.remove('is-ativo'), 2200);
+    });
+  }
+</script>
+</body>
+</html>

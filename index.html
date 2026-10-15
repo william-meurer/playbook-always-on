@@ -1,0 +1,2933 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Playbook Always On · 9barra7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&display=swap" rel="stylesheet">
+  
+  
+  
+  
+  <style>
+    /* Ajustes específicos do Playbook sobre a base do 9barra7 UI */
+    .top-playbook {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--superficie) 88%, transparent);
+      backdrop-filter: var(--vidro-filtro);
+      -webkit-backdrop-filter: var(--vidro-filtro);
+      border-bottom: 1px solid var(--borda);
+    }
+    .top-playbook .envelope {
+      display: flex;
+      align-items: center;
+      gap: var(--e-4);
+      height: 60px;
+    }
+    .nav-playbook {
+      display: flex;
+      gap: var(--e-2);
+      margin-left: auto;
+    }
+    .nav-playbook a {
+      color: var(--texto-2);
+      font: var(--t-rotulo);
+      text-decoration: none;
+      padding: var(--e-2) var(--e-3);
+      border-radius: var(--r-sm);
+      transition: all var(--tr-rapida) var(--easing);
+    }
+    .nav-playbook a:hover {
+      color: var(--texto);
+      background: var(--superficie-2);
+    }
+    .bloco-regra {
+      background: var(--superficie-2);
+      border: 1px solid var(--borda);
+      border-radius: var(--r-md);
+      padding: var(--e-4) var(--e-5);
+    }
+    .grade-taticas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+      gap: var(--e-4);
+    }
+    .caixa-roteiro {
+      background: var(--fundo);
+      border: 1px solid var(--borda);
+      border-radius: var(--r-sm);
+      padding: var(--e-3) var(--e-4);
+      font: var(--t-corpo-p);
+      color: var(--texto);
+      line-height: 1.55;
+    }
+    .tabela-quadro {
+      width: 100%;
+      border-collapse: collapse;
+      font: var(--t-corpo-p);
+      text-align: left;
+    }
+    .tabela-quadro th {
+      padding: var(--e-3) var(--e-4);
+      font: var(--t-rotulo);
+      color: var(--texto-3);
+      border-bottom: 1px solid var(--borda-forte);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-sobrelinha);
+    }
+    .tabela-quadro td {
+      padding: var(--e-4);
+      border-bottom: 1px solid var(--borda);
+      vertical-align: top;
+      color: var(--texto);
+    }
+    .tabela-quadro tr:last-child td {
+      border-bottom: none;
+    }
+    #toast-msg {
+      position: fixed;
+      bottom: var(--e-5);
+      right: var(--e-5);
+      background: var(--acao);
+      color: var(--sobre-acao);
+      font: var(--t-rotulo);
+      padding: var(--e-3) var(--e-4);
+      border-radius: var(--r-sm);
+      box-shadow: var(--sombra-3);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all var(--tr-padrao) var(--easing);
+      z-index: var(--z-toast);
+      pointer-events: none;
+    }
+    #toast-msg.is-ativo {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+<style>
+/* === tokens.css === */
+/* ==========================================================================
+   9barra7 Hub · Tokens
+   Fonte única de verdade para cor, tipo, espaço, raio, sombra e movimento.
+   Derivado de IA Studio (azul + lima), PromptHub (laranja) e Cora (tema escuro,
+   verde-lima e turquesa). Os neutros quentes são compartilhados pelos três.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../assets/fontes/DMSans-latin.woff2') format('woff2');
+  font-weight: 100 1000;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('../assets/fontes/DMSans-latin-ext.woff2') format('woff2');
+  font-weight: 100 1000;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  color-scheme: light;
+
+  /* ---- Primitivos (não use direto nos componentes) ---------------------- */
+  --p-preto: #000000;
+  --p-grafite-900: #111111;
+  --p-grafite-800: #1c1c1c;
+  --p-pedra-700: #5b5b57;
+  --p-pedra-500: #8e8e88;
+  --p-pedra-300: #d2d2cb;
+  --p-pedra-200: #e4e4df;
+  --p-pedra-100: #efefeb;
+  --p-pedra-50:  #f5f5f3;   /* off-white da Academy */
+  --p-branco:    #ffffff;
+
+  /* 9BARRA7 Academy, paleta institucional: preto, branco, off-white #f5f5f3,
+     verde #b3ff9f (CTA, acentos), roxo #a4a1f3 (acentos, UI), cinza #b9c2cc (estrutura).
+     Roxo 500/600 são o mesmo matiz escurecido para passar contraste sobre branco
+     (500: 4,0:1 para preenchimento e foco; 600: 5,5:1 para texto e links). */
+  --p-verde-marca: #b3ff9f;
+  --p-verde-marca-400: #a2f28b;
+  --p-roxo-300: #a4a1f3;
+  --p-roxo-500: #736eed;
+  --p-roxo-600: #5953e9;
+  --p-cinza-marca: #b9c2cc;
+  --p-amarelo-300: #f7e549;  /* Workshop Acelera Render com IA */
+
+  --p-azul-500: #316cf6;   /* IA Studio */
+  --p-azul-600: #2757d8;
+  --p-azul-700: #1f47b3;
+  --p-lima-300: #ddfe6f;   /* IA Studio */
+  --p-lima-400: #cbf252;
+  --p-verde-200: #c4fba7;  /* Cora */
+  --p-verde-300: #a5f37d;
+  --p-turquesa-200: #adecdf; /* Cora */
+  --p-turquesa-700: #196c5b;
+  --p-laranja-500: #fb6616; /* PromptHub */
+  --p-laranja-600: #e0570d;
+  --p-vermelho-600: #c4443a;
+  --p-vermelho-700: #a6342b;
+  --p-ambar-500: #d98a00;
+  --p-ambar-700: #8a5700;
+  --p-verde-700: #1f7a44;
+
+  /* ---- Fundo e superfícies --------------------------------------------- */
+  --fundo: var(--p-pedra-50);           /* tela do app */
+  --fundo-2: var(--p-pedra-100);        /* áreas rebaixadas, trilhos */
+  --superficie: var(--p-branco);        /* cards, campos, painéis */
+  --superficie-2: var(--p-pedra-50);    /* hover de linha, blocos internos */
+  --superficie-3: var(--p-pedra-100);   /* pressionado, skeleton */
+  --superficie-inversa: var(--p-preto); /* seções escuras, tooltip */
+  --sobreposicao: rgba(17, 17, 17, 0.42);
+  --vidro: rgba(255, 255, 255, 0.72);
+  --vidro-filtro: blur(18px) saturate(1.8);
+
+  /* ---- Texto ------------------------------------------------------------ */
+  --texto: var(--p-grafite-900);
+  --texto-2: var(--p-pedra-700);       /* apoio: 6.6:1 sobre branco */
+  --texto-3: #74746e;                  /* legendas: 4.6:1 sobre branco */
+  --texto-desab: var(--p-pedra-500);
+  --texto-inverso: var(--p-branco);
+  --texto-inverso-2: rgba(255, 255, 255, 0.74);
+  --texto-link: var(--p-roxo-600);
+
+  /* ---- Bordas ----------------------------------------------------------- */
+  --borda: var(--p-pedra-200);
+  --borda-forte: var(--p-pedra-300);
+  --borda-hover: var(--p-grafite-900);
+  --borda-inversa: rgba(255, 255, 255, 0.14);
+
+  /* ---- Ações ------------------------------------------------------------ */
+  --acao: var(--p-preto);              /* primário: pílula preta */
+  --acao-hover: var(--p-grafite-800);
+  --sobre-acao: var(--p-branco);
+  --acento: var(--p-roxo-500);         /* seleção, foco, progresso, links */
+  --acento-hover: var(--p-roxo-600);
+  --acento-fraco: rgba(164, 161, 243, 0.22);
+  --acento-texto: var(--p-roxo-600);
+  --sobre-acento: var(--p-branco);
+  --destaque: var(--p-verde-marca);    /* CTA de marca, novidade, créditos */
+  --destaque-hover: var(--p-verde-marca-400);
+  --sobre-destaque: var(--p-preto);
+  --foco: var(--p-roxo-500);
+
+  /* ---- Feedback --------------------------------------------------------- */
+  --sucesso: var(--p-verde-700);
+  --sucesso-fundo: #e7f5ec;
+  --sucesso-borda: #bfe3cc;
+  --aviso: var(--p-ambar-700);
+  --aviso-solido: var(--p-ambar-500);
+  --aviso-fundo: #fdf3e0;
+  --aviso-borda: #f3dcae;
+  --erro: var(--p-vermelho-600);
+  --erro-hover: var(--p-vermelho-700);
+  --erro-fundo: #fbeceb;
+  --erro-borda: #f1c9c5;
+  --info: var(--p-azul-600);
+  --info-fundo: #ebf1fe;
+  --info-borda: #c8d8fc;
+
+  /* ---- Produtos do ecossistema (categorias) ------------------------------------ */
+  --cat-studio: var(--p-azul-500);     --cat-studio-fundo: #ebf1fe;   --cat-studio-texto: #1f47b3;
+  --cat-prompthub: var(--p-laranja-500); --cat-prompthub-fundo: #fff0e6; --cat-prompthub-texto: #a3400a;
+  --cat-cora: var(--p-verde-300);      --cat-cora-fundo: #edfde3;     --cat-cora-texto: #256b2a;
+  --cat-academy: var(--p-grafite-900); --cat-academy-fundo: var(--p-pedra-100); --cat-academy-texto: var(--p-grafite-900);
+  --cat-agentes: var(--p-turquesa-200); --cat-agentes-fundo: #e6f7f3; --cat-agentes-texto: var(--p-turquesa-700);
+
+  /* ---- Tipografia ------------------------------------------------------- */
+  --fonte: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fonte-mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --t-display: 500 clamp(34px, 4.8vw, 60px)/1.06 var(--fonte);
+  --t-h1: 500 clamp(28px, 3.4vw, 40px)/1.12 var(--fonte);
+  --t-h2: 500 clamp(22px, 2.2vw, 28px)/1.2 var(--fonte);
+  --t-h3: 500 20px/1.3 var(--fonte);
+  --t-h4: 500 17px/1.35 var(--fonte);
+  --t-corpo-g: 400 17px/1.55 var(--fonte);
+  --t-corpo: 400 15px/1.55 var(--fonte);
+  --t-corpo-p: 400 14px/1.5 var(--fonte);
+  --t-legenda: 400 13px/1.45 var(--fonte);
+  --t-rotulo: 500 13px/1.3 var(--fonte);
+  --t-sobrelinha: 500 11px/1.3 var(--fonte); /* + caixa alta e --tracking-sobrelinha */
+  --t-codigo: 400 13px/1.65 var(--fonte-mono);
+
+  --tracking-display: -0.038em;
+  --tracking-h1: -0.032em;
+  --tracking-h2: -0.024em;
+  --tracking-h3: -0.016em;
+  --tracking-h4: -0.01em;
+  --tracking-sobrelinha: 0.1em;
+
+  /* ---- Espaço (base 4) -------------------------------------------------- */
+  --e-0: 2px;
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 24px;
+  --e-6: 32px;
+  --e-7: 48px;
+  --e-8: 64px;
+  --e-9: 96px;
+
+  /* ---- Raios ------------------------------------------------------------ */
+  --r-xs: 6px;    /* checkbox, kbd, chips de código */
+  --r-sm: 10px;   /* campos pequenos, itens de menu */
+  --r-md: 14px;   /* campos, menus, alertas */
+  --r-lg: 20px;   /* cards, modais */
+  --r-xl: 28px;   /* campo de prompt, gaveta */
+  --r-pill: 9999px;
+
+  /* ---- Sombras (poucas: o sistema prefere bordas) ----------------------- */
+  --sombra-0: none;
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sombra-2: 0 4px 16px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --sombra-3: 0 8px 32px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --sombra-4: 0 24px 64px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --anel-foco: 0 0 0 3px rgba(115, 110, 237, 0.3);
+  --anel-erro: 0 0 0 3px rgba(196, 68, 58, 0.20);
+
+  /* ---- Tamanhos de controle -------------------------------------------- */
+  --ctrl-p: 32px;
+  --ctrl-m: 40px;
+  --ctrl-g: 48px;
+  --icone-p: 16px;
+  --icone-m: 20px;
+  --icone-g: 24px;
+  --icone-traco: 1.75;
+
+  /* ---- Movimento -------------------------------------------------------- */
+  --easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --tr-rapida: 140ms;
+  --tr-padrao: 180ms;
+  --tr-painel: 260ms;
+  /* Curvas além de --easing (entradas, hover, toque). Nunca ease-in em UI. */
+  --curva-movimento: cubic-bezier(0.77, 0, 0.175, 1);  /* algo que se desloca na tela */
+  --curva-gaveta: cubic-bezier(0.32, 0.72, 0, 1);      /* gavetas e painéis */
+
+  /* ---- Camadas ---------------------------------------------------------- */
+  --z-menu: 40;
+  --z-gaveta: 60;
+  --z-modal: 70;
+  --z-toast: 90;
+  --z-dica: 100;
+}
+
+/* ---- Tema escuro (base Cora) -------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fundo: #141416;
+  --fundo-2: #1a1a1e;
+  --superficie: #1a1a1e;
+  --superficie-2: #222227;
+  --superficie-3: #2a2a30;
+  --superficie-inversa: #f2f2f0;
+  --sobreposicao: rgba(0, 0, 0, 0.6);
+  --vidro: rgba(26, 26, 30, 0.72);
+
+  --texto: #f2f2f0;
+  --texto-2: #b8b8b2;
+  --texto-3: #9a9a94;
+  --texto-desab: #6a6a66;
+  --texto-inverso: #111111;
+  --texto-inverso-2: rgba(17, 17, 17, 0.7);
+  --texto-link: #c3c1f8;
+
+  --borda: #33333a;
+  --borda-forte: #44444c;
+  --borda-hover: #f2f2f0;
+
+  --acao: #f2f2f0;
+  --acao-hover: #ffffff;
+  --sobre-acao: #111111;
+  --acento: var(--p-roxo-300);
+  --acento-hover: #bcbaf7;
+  --acento-fraco: rgba(164, 161, 243, 0.18);
+  --acento-texto: #c3c1f8;
+  --foco: var(--p-roxo-300);
+
+  --sucesso: #7bd3a0;  --sucesso-fundo: rgba(31, 122, 68, 0.18);  --sucesso-borda: rgba(123, 211, 160, 0.3);
+  --aviso: #f0c066;    --aviso-fundo: rgba(217, 138, 0, 0.16);    --aviso-borda: rgba(240, 192, 102, 0.3);
+  --erro: #f0877e;     --erro-hover: #f4a39c; --erro-fundo: rgba(196, 68, 58, 0.18); --erro-borda: rgba(240, 135, 126, 0.32);
+  --info: #8fb0ff;     --info-fundo: rgba(91, 139, 255, 0.14);    --info-borda: rgba(143, 176, 255, 0.3);
+
+  --cat-studio-fundo: rgba(91, 139, 255, 0.16);   --cat-studio-texto: #9dbaff;
+  --cat-prompthub-fundo: rgba(251, 102, 22, 0.16); --cat-prompthub-texto: #ffab7a;
+  --cat-cora-fundo: rgba(196, 251, 167, 0.14);     --cat-cora-texto: var(--p-verde-200);
+  --cat-academy-fundo: rgba(255, 255, 255, 0.08);  --cat-academy-texto: #f2f2f0; --cat-academy: #f2f2f0;
+  --cat-agentes-fundo: rgba(143, 221, 204, 0.16);  --cat-agentes-texto: #8fddcc;
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sombra-2: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --sombra-3: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --sombra-4: 0 24px 64px rgba(0, 0, 0, 0.6);
+  --anel-foco: 0 0 0 3px rgba(164, 161, 243, 0.4);
+}
+
+/* ==========================================================================
+   Temas por produto
+   Coloque data-produto="..." no <html> (ou em qualquer bloco) e a ação
+   principal, o acento e o destaque passam a ser os do produto. Todo o resto
+   (neutros, feedback, categorias, tipo, espaço) continua igual.
+
+   Produto novo: crie um bloco com até 5 cores. Só --produto-acao é
+   obrigatória na prática; o que faltar herda a base 9barra7.
+     [data-produto="novo"] {
+       --produto-acao: #1f6f5c;          botão principal
+       --produto-sobre-acao: #ffffff;    texto no botão (contraste ≥ 4,5:1)
+       --produto-acento: #1f6f5c;        seleção, foco, progresso, links
+                                         (precisa de ≥ 3:1 sobre branco; check é branco)
+       --produto-destaque: #ddfe6f;      novidade e upgrade
+       --produto-sobre-destaque: #000;
+     }
+   Hover, fundo fraco e versão de texto do acento são derivados sozinhos,
+   inclusive no tema escuro.
+   ========================================================================== */
+:root {
+  --acao-base: var(--p-preto);
+  --sobre-acao-base: var(--p-branco);
+  --acento-base: var(--p-roxo-500);
+  --destaque-base: var(--p-verde-marca);
+  --sobre-destaque-base: var(--p-preto);
+  --mistura: #000;       /* para onde o hover escurece */
+}
+:root[data-theme="dark"] {
+  --acao-base: #f2f2f0;
+  --sobre-acao-base: #111111;
+  --acento-base: var(--p-roxo-300);
+  --mistura: #fff;
+}
+:root[data-produto], [data-produto] {
+  --acao: var(--produto-acao, var(--acao-base));
+  --sobre-acao: var(--produto-sobre-acao, var(--sobre-acao-base));
+  --acao-hover: color-mix(in oklab, var(--acao) 87%, var(--mistura));
+  --acento: var(--produto-acento, var(--acento-base));
+  --acento-hover: color-mix(in oklab, var(--acento) 87%, var(--mistura));
+  --acento-fraco: color-mix(in srgb, var(--acento) 13%, transparent);
+  --acento-texto: color-mix(in oklab, var(--acento) 72%, var(--texto));
+  --foco: var(--acento);
+  --anel-foco: 0 0 0 3px color-mix(in srgb, var(--acento) 30%, transparent);
+  --destaque: var(--produto-destaque, var(--destaque-base));
+  --destaque-hover: color-mix(in oklab, var(--destaque) 90%, #000);
+  --sobre-destaque: var(--produto-sobre-destaque, var(--sobre-destaque-base));
+}
+
+/* 9BARRA7 Academy: a base (roxo no acento, verde no destaque, preto na ação) */
+[data-produto="academy"] { }
+
+/* IA Studio: azul na ação, lima no destaque */
+[data-produto="studio"] {
+  --produto-acao: #316cf6;
+  --produto-sobre-acao: #ffffff;
+  --produto-acento: #316cf6;
+  --produto-destaque: var(--p-lima-300);
+}
+
+/* PromptHub: laranja com texto escuro, como no site */
+[data-produto="prompthub"] {
+  --produto-acao: #fb6616;
+  --produto-sobre-acao: #111111;
+  --produto-acento: #e0570d;
+  --produto-destaque: var(--p-lima-300);
+}
+
+/* Cora: ação preta, acento turquesa escuro, destaque verde-lima */
+[data-produto="cora"] {
+  --produto-acento: #196c5b;
+  --produto-destaque: #c4fba7;
+}
+:root[data-theme="dark"][data-produto="cora"], :root[data-theme="dark"] [data-produto="cora"] { --produto-acento: #8fddcc; }
+
+/* Workshop Acelera Render com IA: turquesa e amarelo do pôster.
+   Nenhum dos dois passa 3:1 sobre branco, então o acento segue o roxo da Academy. */
+[data-produto="workshop"] {
+  --produto-destaque: var(--p-amarelo-300);
+  --produto-sobre-destaque: #111111;
+}
+
+/* === base.css === */
+/* ==========================================================================
+   9barra7 Hub · Base
+   Reset, tipografia utilitária, ícones e utilidades de layout.
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font: var(--t-corpo);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3, h4, h5, p, figure, blockquote, dl, dd { margin: 0; }
+h1, h2, h3, h4 { text-wrap: balance; }
+p { text-wrap: pretty; }
+img, svg, video { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--texto-link); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+ul[role="list"], ol[role="list"] { list-style: none; margin: 0; padding: 0; }
+::selection { background: var(--destaque); color: var(--sobre-destaque); }
+
+:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; border-radius: var(--r-xs); }
+
+/* ---- Ícone -------------------------------------------------------------- */
+.ic { width: var(--icone-m); height: var(--icone-m); flex: none; }
+.ic--p { width: var(--icone-p); height: var(--icone-p); }
+.ic--g { width: var(--icone-g); height: var(--icone-g); }
+.ic--gira { animation: gira 0.9s linear infinite; }
+@keyframes gira { to { transform: rotate(360deg); } }
+
+/* ---- Tipografia --------------------------------------------------------- */
+.t-display { font: var(--t-display); letter-spacing: var(--tracking-display); }
+.t-h1 { font: var(--t-h1); letter-spacing: var(--tracking-h1); }
+.t-h2 { font: var(--t-h2); letter-spacing: var(--tracking-h2); }
+.t-h3 { font: var(--t-h3); letter-spacing: var(--tracking-h3); }
+.t-h4 { font: var(--t-h4); letter-spacing: var(--tracking-h4); }
+.t-corpo-g { font: var(--t-corpo-g); }
+.t-corpo { font: var(--t-corpo); }
+.t-corpo-p { font: var(--t-corpo-p); }
+.t-legenda { font: var(--t-legenda); }
+.t-rotulo { font: var(--t-rotulo); }
+.t-sobrelinha { font: var(--t-sobrelinha); letter-spacing: var(--tracking-sobrelinha); text-transform: uppercase; }
+.t-mono { font: var(--t-codigo); }
+.t-num { font-variant-numeric: tabular-nums; }
+.apoio { color: var(--texto-2); }
+.suave { color: var(--texto-3); }
+.trunca { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.limita-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 5px;
+  border: 1px solid var(--borda); border-bottom-width: 2px; border-radius: var(--r-xs);
+  background: var(--superficie); color: var(--texto-2);
+  font: 500 11px/1 var(--fonte); font-variant-numeric: tabular-nums;
+}
+.kbds { display: inline-flex; gap: 3px; }
+
+/* ---- Marca 9barra7 (arquivo oficial, preto; invertido no escuro) -------- */
+.marca { display: inline-flex; align-items: center; flex: none; }
+.marca img { display: block; height: var(--marca-alt, 20px); width: auto; }
+:root[data-theme="dark"] .marca img { filter: invert(1); }
+
+/* ---- Textura de pontos (assinatura IA Studio) --------------------------- */
+.pontos {
+  background-image: radial-gradient(circle, var(--borda-forte) 0.8px, transparent 1.2px);
+  background-size: 14px 14px;
+}
+
+/* ---- Layout ------------------------------------------------------------- */
+.pilha { display: flex; flex-direction: column; gap: var(--gap, var(--e-3)); }
+.linha { display: flex; align-items: center; gap: var(--gap, var(--e-2)); flex-wrap: wrap; }
+.linha--nowrap { flex-wrap: nowrap; }
+.empurra { margin-left: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* === basicos.css === */
+/* ==========================================================================
+   9barra7 Hub · Componentes básicos
+   ========================================================================== */
+
+/* ==== Botão ============================================================== */
+.btn {
+  --h: var(--ctrl-m);
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--e-2);
+  height: var(--h); min-width: 0; padding: 0 18px;
+  border: 1px solid transparent; border-radius: var(--r-pill);
+  background: var(--acao); color: var(--sobre-acao);
+  font: 600 14px/1 var(--fonte); white-space: nowrap; text-decoration: none;
+  cursor: pointer; user-select: none;
+  transition: background-color var(--tr-padrao) var(--easing), border-color var(--tr-padrao) var(--easing),
+              color var(--tr-padrao) var(--easing), transform var(--tr-rapida) var(--easing), box-shadow var(--tr-padrao) var(--easing);
+}
+.btn:hover { background: var(--acao-hover); text-decoration: none; }
+.btn:active { transform: scale(0.97); }
+.btn:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; border-radius: var(--r-pill); }
+.btn .ic { width: 18px; height: 18px; margin-inline: -2px; }
+.btn--p { --h: var(--ctrl-p); padding: 0 12px; font-size: 13px; gap: 6px; }
+.btn--p .ic { width: 16px; height: 16px; }
+.btn--g { --h: var(--ctrl-g); padding: 0 24px; font-size: 15px; }
+.btn--largo { width: 100%; }
+
+.btn--secundario { background: var(--superficie); color: var(--texto); border-color: var(--borda-forte); }
+.btn--secundario:hover { background: var(--superficie); border-color: var(--borda-hover); }
+.btn--discreto { background: transparent; color: var(--texto); }
+.btn--discreto:hover { background: var(--superficie-3); }
+.btn--acento { background: var(--acento); color: var(--sobre-acento); }
+.btn--acento:hover { background: var(--acento-hover); }
+.btn--destaque { background: var(--destaque); color: var(--sobre-destaque); }
+.btn--destaque:hover { background: var(--destaque-hover); }
+.btn--destrutivo { background: var(--erro); color: #fff; }
+.btn--destrutivo:hover { background: var(--erro-hover); }
+:root[data-theme="dark"] .btn--destrutivo { color: #1a0a08; }
+.btn--destrutivo.btn--secundario { background: var(--superficie); color: var(--erro); border-color: var(--erro-borda); }
+.btn--destrutivo.btn--secundario:hover { border-color: var(--erro); background: var(--erro-fundo); }
+
+/* só ícone */
+.btn--icone { width: var(--h); padding: 0; }
+.btn--icone .ic { margin: 0; }
+.btn--quadrado { border-radius: var(--r-sm); }
+.btn--quadrado:focus-visible { border-radius: var(--r-sm); }
+
+/* estados */
+.btn[aria-pressed="true"], .btn.is-selecionado { background: var(--acento-fraco); color: var(--acento-texto); border-color: transparent; }
+.btn--secundario[aria-pressed="true"] { border-color: var(--acento); }
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--superficie-3); color: var(--texto-desab); border-color: transparent;
+  cursor: not-allowed; transform: none;
+}
+.btn--discreto:disabled { background: transparent; }
+.btn.is-carregando { color: transparent !important; pointer-events: none; }
+.btn.is-carregando::after {
+  content: ""; position: absolute; inset: 0; margin: auto; width: 16px; height: 16px;
+  border: 2px solid var(--sobre-acao); border-right-color: transparent; border-radius: 50%;
+  animation: gira 0.7s linear infinite;
+}
+.btn--secundario.is-carregando::after, .btn--discreto.is-carregando::after { border-color: var(--texto); border-right-color: transparent; }
+.btn.is-carregando > * { visibility: hidden; }
+
+.grupo-btn { display: inline-flex; gap: var(--e-2); flex-wrap: wrap; }
+
+/* ==== Campo ============================================================== */
+.campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo__rotulo { display: flex; align-items: baseline; gap: var(--e-2); font: var(--t-rotulo); color: var(--texto); }
+.campo__opc { font: var(--t-legenda); color: var(--texto-3); }
+.campo__caixa {
+  position: relative;
+  display: flex; align-items: center; gap: var(--e-2);
+  min-height: var(--ctrl-m); padding: 0 var(--e-3);
+  background: var(--superficie); border: 1px solid var(--borda-forte); border-radius: var(--r-md);
+  transition: border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);
+  cursor: text;
+}
+.campo__caixa:hover { border-color: var(--texto-3); }
+.campo__caixa:focus-within { border-color: var(--acento); box-shadow: var(--anel-foco); }
+.campo__caixa > .ic { color: var(--texto-3); }
+.campo__input {
+  flex: 1; min-width: 0; height: calc(var(--ctrl-m) - 2px);
+  border: 0; outline: 0; background: transparent; padding: 0;
+  font: var(--t-corpo); color: var(--texto);
+}
+.campo__input::placeholder { color: var(--texto-3); }
+.campo__input:focus-visible { outline: none; }
+textarea.campo__input { height: auto; min-height: 96px; padding: 10px 0; resize: vertical; line-height: 1.55; }
+.campo__caixa--area { align-items: flex-start; padding-right: var(--e-2); }
+.campo__acao {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; margin-right: -6px;
+  border: 0; border-radius: var(--r-sm); background: transparent; color: var(--texto-3);
+}
+.campo__acao:hover { background: var(--superficie-3); color: var(--texto); }
+.campo__rodape { display: flex; justify-content: space-between; gap: var(--e-3); }
+.campo__ajuda { display: flex; align-items: flex-start; gap: 6px; font: var(--t-legenda); color: var(--texto-3); }
+.campo__ajuda .ic { width: 15px; height: 15px; margin-top: 1px; }
+.campo__contador { font: var(--t-legenda); color: var(--texto-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.campo__contador.is-limite { color: var(--erro); }
+
+.campo.is-erro .campo__caixa { border-color: var(--erro); }
+.campo.is-erro .campo__caixa:focus-within { box-shadow: var(--anel-erro); }
+.campo.is-erro .campo__ajuda { color: var(--erro); }
+.campo.is-sucesso .campo__caixa { border-color: var(--sucesso); }
+.campo.is-sucesso .campo__ajuda { color: var(--sucesso); }
+.campo.is-desabilitado .campo__caixa { background: var(--superficie-2); border-color: var(--borda); cursor: not-allowed; }
+.campo.is-desabilitado .campo__input, .campo.is-desabilitado .campo__rotulo { color: var(--texto-desab); cursor: not-allowed; }
+.campo.is-carregando .campo__caixa::after {
+  content: ""; width: 16px; height: 16px; flex: none;
+  border: 2px solid var(--texto-3); border-right-color: transparent; border-radius: 50%;
+  animation: gira 0.7s linear infinite;
+}
+
+/* busca: pílula */
+.campo--busca .campo__caixa { border-radius: var(--r-pill); padding: 0 var(--e-2) 0 14px; background: var(--superficie); }
+.campo--busca .campo__acao { margin-right: 0; border-radius: 50%; }
+.campo--busca input::-webkit-search-cancel-button { display: none; }
+
+/* força da senha */
+.forca { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.forca span { height: 4px; border-radius: 2px; background: var(--superficie-3); transition: background-color var(--tr-padrao); }
+.forca[data-nivel="1"] span:nth-child(-n+1) { background: var(--erro); }
+.forca[data-nivel="2"] span:nth-child(-n+2) { background: var(--aviso-solido); }
+.forca[data-nivel="3"] span:nth-child(-n+3) { background: var(--acento); }
+.forca[data-nivel="4"] span { background: var(--sucesso); }
+
+/* ==== Select nativo ======================================================= */
+.selecao { position: relative; display: flex; }
+.selecao select {
+  appearance: none; width: 100%; height: var(--ctrl-m); padding: 0 40px 0 var(--e-3);
+  background: var(--superficie); border: 1px solid var(--borda-forte); border-radius: var(--r-md);
+  font: var(--t-corpo); color: var(--texto); cursor: pointer;
+  transition: border-color var(--tr-padrao), box-shadow var(--tr-padrao);
+}
+.selecao select:hover { border-color: var(--texto-3); }
+.selecao select:focus-visible { outline: none; border-color: var(--acento); box-shadow: var(--anel-foco); }
+.selecao select:disabled { background: var(--superficie-2); color: var(--texto-desab); border-color: var(--borda); cursor: not-allowed; }
+.selecao > .ic { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--texto-2); }
+.campo.is-erro .selecao select { border-color: var(--erro); }
+
+/* ==== Checkbox e radio ==================================================== */
+.opcao { display: inline-flex; align-items: flex-start; gap: 10px; cursor: pointer; font: var(--t-corpo); color: var(--texto); }
+.opcao__texto { display: flex; flex-direction: column; gap: 2px; padding-top: 1px; }
+.opcao__texto small { font: var(--t-legenda); color: var(--texto-3); }
+.opcao:has(input:disabled) { cursor: not-allowed; color: var(--texto-desab); }
+.caixa, .radio {
+  appearance: none; flex: none; margin: 1px 0 0; width: 20px; height: 20px;
+  background: var(--superficie) center / 14px no-repeat; border: 1.5px solid var(--borda-forte);
+  cursor: pointer; transition: background-color var(--tr-rapida), border-color var(--tr-rapida), box-shadow var(--tr-rapida);
+}
+.caixa { border-radius: var(--r-xs); }
+.radio { border-radius: 50%; }
+.caixa:hover, .radio:hover { border-color: var(--texto-2); }
+.caixa:focus-visible, .radio:focus-visible { outline: none; box-shadow: var(--anel-foco); border-color: var(--acento); }
+.caixa:checked, .caixa:indeterminate { background-color: var(--acento); border-color: var(--acento); }
+.caixa:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E"); }
+.caixa:indeterminate { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E"); }
+.radio:checked { border-color: var(--acento); border-width: 6px; }
+.caixa:disabled, .radio:disabled { background-color: var(--superficie-3); border-color: var(--borda); cursor: not-allowed; }
+.caixa:checked:disabled { background-color: var(--borda-forte); }
+.radio:checked:disabled { border-color: var(--borda-forte); }
+.opcao.is-erro .caixa { border-color: var(--erro); }
+.grupo-opcoes { display: flex; flex-direction: column; gap: var(--e-3); border: 0; margin: 0; padding: 0; min-width: 0; }
+.grupo-opcoes legend { padding: 0; margin-bottom: var(--e-3); font: var(--t-rotulo); }
+
+/* ==== Switch ============================================================== */
+.chave {
+  appearance: none; flex: none; position: relative; margin: 0; width: 36px; height: 22px;
+  border-radius: var(--r-pill); background: var(--borda-forte); cursor: pointer;
+  transition: background-color var(--tr-padrao) var(--easing);
+}
+.chave::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  transition: transform var(--tr-padrao) var(--easing);
+}
+.chave:hover { background: var(--texto-3); }
+.chave:checked { background: var(--acento); }
+.chave:checked:hover { background: var(--acento-hover); }
+.chave:checked::after { transform: translateX(14px); }
+.chave:focus-visible { outline: none; box-shadow: var(--anel-foco); }
+.chave:disabled { opacity: 0.45; cursor: not-allowed; }
+.chave--p { width: 30px; height: 18px; }
+.chave--p::after { width: 12px; height: 12px; }
+.chave--p:checked::after { transform: translateX(12px); }
+
+/* ==== Slider ============================================================== */
+.faixa-campo { display: flex; flex-direction: column; gap: var(--e-2); }
+.faixa-campo__topo { display: flex; justify-content: space-between; font: var(--t-rotulo); }
+.faixa-campo__valor { font-variant-numeric: tabular-nums; color: var(--texto-2); font-weight: 400; }
+.faixa {
+  --v: 50%;
+  appearance: none; width: 100%; height: 20px; margin: 0; background: transparent; cursor: pointer;
+}
+.faixa::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px;
+  background: linear-gradient(to right, var(--acento) var(--v), var(--superficie-3) var(--v));
+}
+.faixa::-moz-range-track { height: 4px; border-radius: 2px; background: var(--superficie-3); }
+.faixa::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--acento); }
+.faixa::-webkit-slider-thumb {
+  appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%;
+  background: #fff; border: 1.5px solid var(--acento); box-shadow: var(--sombra-1);
+  transition: transform var(--tr-rapida) var(--easing), box-shadow var(--tr-rapida);
+}
+.faixa::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1.5px solid var(--acento); }
+.faixa:hover::-webkit-slider-thumb { transform: scale(1.1); }
+.faixa:focus-visible { outline: none; }
+.faixa:focus-visible::-webkit-slider-thumb { box-shadow: var(--anel-foco); }
+.faixa:focus-visible::-moz-range-thumb { box-shadow: var(--anel-foco); }
+.faixa:disabled { cursor: not-allowed; opacity: 0.45; }
+.faixa-campo__marcas { display: flex; justify-content: space-between; font: var(--t-legenda); color: var(--texto-3); }
+
+/* ==== Avatar ============================================================== */
+.avatar {
+  --tam: 32px;
+  position: relative; flex: none; display: inline-grid; place-items: center;
+  width: var(--tam); height: var(--tam); border-radius: 50%;
+  background: var(--av-fundo, var(--superficie-3)); color: var(--av-texto, var(--texto));
+  font: 600 calc(var(--tam) * 0.38)/1 var(--fonte); letter-spacing: -0.01em; text-transform: uppercase;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.avatar--xp { --tam: 20px; }
+.avatar--p { --tam: 24px; }
+.avatar--g { --tam: 40px; }
+.avatar--xg { --tam: 56px; }
+.avatar--quadrado { border-radius: 28%; }
+.avatar--c1 { --av-fundo: var(--cat-studio-fundo); --av-texto: var(--cat-studio-texto); }
+.avatar--c2 { --av-fundo: var(--cat-prompthub-fundo); --av-texto: var(--cat-prompthub-texto); }
+.avatar--c3 { --av-fundo: var(--cat-cora-fundo); --av-texto: var(--cat-cora-texto); }
+.avatar--c4 { --av-fundo: var(--cat-agentes-fundo); --av-texto: var(--cat-agentes-texto); }
+.avatar--c5 { --av-fundo: var(--acao); --av-texto: var(--sobre-acao); }
+.avatar__status {
+  position: absolute; right: -1px; bottom: -1px; width: max(8px, calc(var(--tam) * 0.28)); height: max(8px, calc(var(--tam) * 0.28));
+  border-radius: 50%; border: 2px solid var(--superficie); background: var(--texto-3);
+}
+.avatar__status--online { background: #2fb36b; }
+.avatar__status--ocupado { background: var(--erro); }
+.avatar__status--ausente { background: var(--aviso-solido); }
+.avatares { display: inline-flex; align-items: center; }
+.avatares > .avatar { box-shadow: 0 0 0 2px var(--superficie); }
+.avatares > .avatar + .avatar { margin-left: calc(var(--tam) * -0.28); }
+.avatares__mais { --av-fundo: var(--superficie-3); --av-texto: var(--texto-2); font-weight: 500; text-transform: none; letter-spacing: 0; }
+.avatares--p > .avatar { --tam: 24px; }
+
+/* ==== Badge =============================================================== */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  height: 22px; padding: 0 9px; max-width: 100%;
+  border-radius: var(--r-pill); background: var(--superficie-3); color: var(--texto-2);
+  font: 500 12px/1 var(--fonte); white-space: nowrap;
+}
+.badge .ic { width: 13px; height: 13px; margin-left: -2px; }
+.badge__ponto { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.badge--p { height: 18px; padding: 0 6px; font-size: 11px; }
+.badge--contorno { background: transparent; box-shadow: inset 0 0 0 1px var(--borda-forte); }
+.badge--studio { background: var(--cat-studio-fundo); color: var(--cat-studio-texto); }
+.badge--prompthub { background: var(--cat-prompthub-fundo); color: var(--cat-prompthub-texto); }
+.badge--cora { background: var(--cat-cora-fundo); color: var(--cat-cora-texto); }
+.badge--academy { background: var(--cat-academy-fundo); color: var(--cat-academy-texto); }
+.badge--agentes { background: var(--cat-agentes-fundo); color: var(--cat-agentes-texto); }
+.badge--sucesso { background: var(--sucesso-fundo); color: var(--sucesso); }
+.badge--aviso { background: var(--aviso-fundo); color: var(--aviso); }
+.badge--erro { background: var(--erro-fundo); color: var(--erro); }
+.badge--info { background: var(--info-fundo); color: var(--info); }
+.badge--novo { background: var(--destaque); color: var(--sobre-destaque); }
+.badge--solido { background: var(--acao); color: var(--sobre-acao); }
+.badge--vivo .badge__ponto { animation: pulsa 1.4s ease-in-out infinite; }
+@keyframes pulsa { 50% { opacity: 0.3; } }
+.contador {
+  display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: var(--r-pill); background: var(--erro); color: #fff; font: 600 11px/1 var(--fonte); font-variant-numeric: tabular-nums;
+}
+
+/* ==== Tooltip ============================================================= */
+.dica {
+  position: fixed; z-index: var(--z-dica); pointer-events: none;
+  max-width: 240px; padding: 6px 10px; border-radius: var(--r-sm);
+  background: var(--superficie-inversa); color: var(--texto-inverso);
+  font: 500 12px/1.4 var(--fonte);
+  opacity: 0; transform: translateY(4px);
+  transition: opacity var(--tr-rapida) var(--easing), transform var(--tr-rapida) var(--easing);
+}
+.dica.is-visivel { opacity: 1; transform: none; }
+.dica[data-lado="baixo"] { transform: translateY(-4px); }
+.dica.is-visivel[data-lado="baixo"] { transform: none; }
+.dica .kbd { margin-left: 6px; height: 18px; background: transparent; color: inherit; border-color: rgba(255,255,255,.25); }
+:root[data-theme="dark"] .dica .kbd { border-color: rgba(0,0,0,.2); }
+.dica-estatica { position: relative; opacity: 1; transform: none; display: inline-block; }
+.dica-estatica::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px; width: 8px; height: 8px; margin-left: -4px;
+  background: inherit; transform: rotate(45deg); border-radius: 1px;
+}
+
+/* ==== Menu dropdown ======================================================= */
+.ancora { position: relative; display: inline-flex; }
+.menu {
+  position: absolute; z-index: var(--z-menu); top: calc(100% + 6px); left: 0;
+  min-width: 220px; max-width: min(320px, calc(100vw - 32px)); padding: 6px;
+  background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--r-md);
+  box-shadow: var(--sombra-3);
+  display: none; transform-origin: top left;
+  transition: opacity var(--tr-rapida) var(--easing), transform var(--tr-rapida) var(--easing), display var(--tr-rapida) allow-discrete;
+}
+.menu--dir { left: auto; right: 0; transform-origin: top right; }
+.menu--cima { top: auto; bottom: calc(100% + 6px); transform-origin: bottom left; }
+.menu.is-aberto { display: block; }
+@starting-style { .menu.is-aberto { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+.menu--estatico { position: static; display: block; }
+.menu__item {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 36px; padding: 6px 10px;
+  border: 0; border-radius: var(--r-sm); background: transparent; color: var(--texto);
+  font: var(--t-corpo-p); text-align: left; cursor: pointer;
+}
+.menu__item > .ic { width: 18px; height: 18px; color: var(--texto-2); }
+.menu__item:hover, .menu__item:focus-visible, .menu__item.is-ativo { background: var(--superficie-2); outline: none; }
+:root[data-theme="dark"] .menu__item:hover, :root[data-theme="dark"] .menu__item:focus-visible, :root[data-theme="dark"] .menu__item.is-ativo { background: var(--superficie-3); }
+.menu__item .kbds, .menu__item .menu__meta { margin-left: auto; }
+.menu__meta { font: var(--t-legenda); color: var(--texto-3); }
+.menu__item[aria-checked="true"]::after { content: ""; margin-left: auto; width: 16px; height: 16px; background: var(--acento); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat; }
+.menu__item--perigo, .menu__item--perigo > .ic { color: var(--erro); }
+.menu__item--perigo:hover { background: var(--erro-fundo) !important; }
+.menu__item:disabled { color: var(--texto-desab); cursor: not-allowed; background: transparent !important; }
+.menu__item:disabled > .ic { color: var(--texto-desab); }
+.menu__sep { height: 1px; margin: 6px -6px; background: var(--borda); border: 0; }
+.menu__grupo { padding: 8px 10px 4px; font: var(--t-sobrelinha); letter-spacing: var(--tracking-sobrelinha); text-transform: uppercase; color: var(--texto-3); }
+.menu__cab { display: flex; align-items: center; gap: 10px; padding: 8px 10px 10px; }
+
+/* ==== Accordion =========================================================== */
+.sanfona { border-top: 1px solid var(--borda); }
+.sanfona__item { border-bottom: 1px solid var(--borda); }
+.sanfona__item summary {
+  display: flex; align-items: center; gap: var(--e-3); padding: var(--e-4) var(--e-1);
+  list-style: none; cursor: pointer; font: var(--t-h4); letter-spacing: var(--tracking-h4);
+  border-radius: var(--r-xs);
+}
+.sanfona__item summary::-webkit-details-marker { display: none; }
+.sanfona__item summary:hover { color: var(--texto-2); }
+.sanfona__item summary .ic:last-child { margin-left: auto; color: var(--texto-2); transition: transform var(--tr-painel) var(--easing); }
+.sanfona__item[open] summary .ic:last-child { transform: rotate(45deg); }
+.sanfona__corpo { padding: 0 var(--e-1) var(--e-4); color: var(--texto-2); max-width: 60ch; }
+.sanfona__item.is-desabilitado summary { color: var(--texto-desab); cursor: not-allowed; }
+.sanfona__item::details-content { block-size: 0; overflow: clip; transition: block-size var(--tr-painel) var(--easing), content-visibility var(--tr-painel) allow-discrete; }
+.sanfona__item[open]::details-content { block-size: auto; }
+.sanfona { interpolate-size: allow-keywords; }
+.sanfona--cartao { border: 1px solid var(--borda); border-radius: var(--r-lg); background: var(--superficie); padding: 0 var(--e-4); }
+.sanfona--cartao .sanfona__item:last-child { border-bottom: 0; }
+
+/* ==== Alerta ============================================================== */
+.alerta {
+  display: flex; gap: var(--e-3); padding: 14px var(--e-4);
+  border: 1px solid var(--info-borda); border-radius: var(--r-md); background: var(--info-fundo); color: var(--texto);
+}
+.alerta > .ic { color: var(--info); margin-top: 1px; }
+.alerta__corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.alerta__titulo { font: 600 14px/1.4 var(--fonte); }
+.alerta__texto { font: var(--t-corpo-p); color: var(--texto-2); }
+.alerta__acoes { display: flex; gap: var(--e-2); margin-top: 6px; flex-wrap: wrap; }
+.alerta__fechar { align-self: flex-start; margin: -4px -6px 0 0; }
+.alerta--sucesso { background: var(--sucesso-fundo); border-color: var(--sucesso-borda); }
+.alerta--sucesso > .ic { color: var(--sucesso); }
+.alerta--aviso { background: var(--aviso-fundo); border-color: var(--aviso-borda); }
+.alerta--aviso > .ic { color: var(--aviso); }
+.alerta--erro { background: var(--erro-fundo); border-color: var(--erro-borda); }
+.alerta--erro > .ic { color: var(--erro); }
+.alerta--neutro { background: var(--superficie); border-color: var(--borda); }
+.alerta--neutro > .ic { color: var(--texto-2); }
+
+/* ==== Toast =============================================================== */
+.toasts {
+  position: fixed; z-index: var(--z-toast); right: var(--e-5); bottom: var(--e-5);
+  display: flex; flex-direction: column-reverse; gap: var(--e-2); width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto; display: flex; align-items: flex-start; gap: var(--e-3);
+  padding: 14px 14px 14px var(--e-4); border-radius: var(--r-md);
+  background: var(--superficie-inversa); color: var(--texto-inverso); box-shadow: var(--sombra-4);
+  animation: toast-entra var(--tr-painel) var(--easing);
+}
+.toast.is-saindo { animation: toast-sai 200ms var(--easing) forwards; }
+.toast > .ic { margin-top: 1px; }
+.toast--sucesso > .ic { color: #7bd3a0; }
+.toast--erro > .ic { color: #f0877e; }
+.toast--aviso > .ic { color: #f0c066; }
+:root[data-theme="dark"] .toast--sucesso > .ic { color: var(--p-verde-700); }
+:root[data-theme="dark"] .toast--erro > .ic { color: var(--p-vermelho-600); }
+:root[data-theme="dark"] .toast--aviso > .ic { color: var(--p-ambar-700); }
+.toast__corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.toast__titulo { font: 600 14px/1.4 var(--fonte); }
+.toast__texto { font: var(--t-corpo-p); color: var(--texto-inverso-2); overflow-wrap: anywhere; }
+.toast__acao { flex: none; align-self: center; border: 0; background: transparent; color: var(--texto-inverso); font: 600 13px/1 var(--fonte); padding: 8px; border-radius: var(--r-sm); text-decoration: underline; text-underline-offset: 3px; }
+.toast__acao:hover { background: rgba(255,255,255,.1); }
+.toast__fechar { flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -4px -4px 0 0; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--texto-inverso-2); }
+.toast__fechar:hover { background: rgba(255,255,255,.1); color: var(--texto-inverso); }
+.toast--estatico { animation: none; }
+@keyframes toast-entra { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+@keyframes toast-sai { to { opacity: 0; transform: translateY(8px) scale(0.98); } }
+@media (max-width: 600px) { .toasts { left: 16px; right: 16px; bottom: 16px; width: auto; } }
+
+/* ==== Modal =============================================================== */
+dialog { color: var(--texto); }
+.modal {
+  width: min(520px, calc(100vw - 32px)); max-height: min(720px, calc(100dvh - 32px));
+  padding: 0; border: 1px solid var(--borda); border-radius: var(--r-lg);
+  background: var(--superficie); box-shadow: var(--sombra-4); overflow: hidden;
+}
+.modal[open] { display: flex; flex-direction: column; animation: modal-entra var(--tr-painel) var(--easing); }
+.modal::backdrop { background: var(--sobreposicao); backdrop-filter: blur(2px); animation: fade var(--tr-painel) var(--easing); }
+.modal--g { width: min(760px, calc(100vw - 32px)); }
+.modal__cab { display: flex; align-items: flex-start; gap: var(--e-3); padding: var(--e-5) var(--e-5) var(--e-3); }
+.modal__titulo { font: var(--t-h3); letter-spacing: var(--tracking-h3); }
+.modal__sub { margin-top: 4px; font: var(--t-corpo-p); color: var(--texto-2); }
+.modal__cab .btn--icone { margin: -6px -8px 0 auto; }
+.modal__corpo { flex: 1; overflow: auto; padding: var(--e-2) var(--e-5) var(--e-5); }
+.modal__rodape { display: flex; justify-content: flex-end; gap: var(--e-2); padding: var(--e-4) var(--e-5); border-top: 1px solid var(--borda); background: var(--superficie-2); flex-wrap: wrap; }
+:root[data-theme="dark"] .modal__rodape { background: var(--superficie); }
+.modal__icone { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; flex: none; background: var(--erro-fundo); color: var(--erro); }
+@keyframes modal-entra { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
+@keyframes fade { from { opacity: 0; } }
+@media (max-width: 600px) {
+  .modal__rodape { flex-direction: column-reverse; }
+  .modal__rodape .btn { width: 100%; }
+}
+
+/* ==== Drawer ============================================================== */
+.gaveta {
+  margin: 0 0 0 auto; width: min(440px, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh;
+  padding: 0; border: 0; border-left: 1px solid var(--borda); border-radius: var(--r-xl) 0 0 var(--r-xl);
+  background: var(--superficie); box-shadow: var(--sombra-4);
+}
+.gaveta[open] { display: flex; flex-direction: column; animation: gaveta-entra var(--tr-painel) var(--easing); }
+.gaveta::backdrop { background: var(--sobreposicao); animation: fade var(--tr-painel) var(--easing); }
+.gaveta .modal__corpo { padding-top: var(--e-4); }
+@keyframes gaveta-entra { from { transform: translateX(100%); } }
+@media (max-width: 600px) {
+  .gaveta { margin: auto 0 0; width: 100vw; height: auto; max-height: 88dvh; border-left: 0; border-top: 1px solid var(--borda); border-radius: var(--r-xl) var(--r-xl) 0 0; }
+  .gaveta[open] { animation-name: folha-entra; }
+  .gaveta .modal__cab::before { content: ""; position: absolute; left: 50%; top: 8px; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: var(--borda-forte); }
+}
+@keyframes folha-entra { from { transform: translateY(100%); } }
+
+/* ==== Tabs ================================================================ */
+.abas { display: flex; gap: var(--e-5); border-bottom: 1px solid var(--borda); overflow-x: auto; scrollbar-width: none; }
+.abas::-webkit-scrollbar { display: none; }
+.aba {
+  position: relative; display: inline-flex; align-items: center; gap: 6px; flex: none;
+  height: 40px; padding: 0; border: 0; background: transparent; color: var(--texto-2);
+  font: 500 14px/1 var(--fonte); white-space: nowrap; cursor: pointer;
+}
+.aba:hover { color: var(--texto); }
+.aba[aria-selected="true"] { color: var(--texto); }
+.aba[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px 2px 0 0; background: var(--texto); }
+.aba:disabled { color: var(--texto-desab); cursor: not-allowed; }
+.aba .badge { height: 18px; padding: 0 6px; font-size: 11px; }
+.aba:focus-visible { outline-offset: -2px; }
+.aba-painel:focus-visible { outline-offset: 4px; }
+
+/* segmentado (Cora) */
+.abas--segmento { display: inline-flex; gap: 2px; padding: 3px; border: 0; border-radius: var(--r-pill); background: var(--fundo-2); max-width: 100%; }
+:root[data-theme="dark"] .abas--segmento { background: rgba(0,0,0,.32); }
+.abas--segmento .aba { height: 32px; padding: 0 14px; border-radius: var(--r-pill); font-size: 13px; transition: background-color var(--tr-padrao), color var(--tr-padrao); }
+.abas--segmento .aba[aria-selected="true"] { background: var(--superficie); box-shadow: var(--sombra-1), 0 0 0 1px var(--borda); }
+:root[data-theme="dark"] .abas--segmento .aba[aria-selected="true"] { background: var(--superficie-3); }
+.abas--segmento .aba[aria-selected="true"]::after { display: none; }
+.abas--segmento .aba:focus-visible { border-radius: var(--r-pill); }
+
+/* ==== Breadcrumbs ========================================================= */
+.trilha ol { display: flex; align-items: center; flex-wrap: nowrap; gap: 4px; margin: 0; padding: 0; list-style: none; min-width: 0; }
+.trilha li { display: flex; align-items: center; gap: 4px; min-width: 0; font: var(--t-corpo-p); color: var(--texto-2); }
+.trilha li + li::before { content: ""; flex: none; width: 14px; height: 14px; background: var(--texto-3); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat; }
+.trilha a { display: inline-flex; align-items: center; gap: 6px; padding: 2px 6px; margin: 0 -2px; border-radius: var(--r-xs); color: var(--texto-2); min-width: 0; }
+.trilha a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trilha a:hover { color: var(--texto); background: var(--superficie-3); text-decoration: none; }
+.trilha [aria-current="page"] { padding: 2px 4px; color: var(--texto); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.trilha li:last-child { flex: 1 1 auto; }
+.trilha__reticencias { display: none; }
+@media (max-width: 600px) {
+  .trilha li.trilha__meio { display: none; }
+  .trilha__reticencias { display: flex; }
+}
+
+/* ==== Paginação =========================================================== */
+.paginacao { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.paginacao__pag {
+  display: inline-grid; place-items: center; min-width: 36px; height: 36px; padding: 0 8px;
+  border: 0; border-radius: var(--r-pill); background: transparent; color: var(--texto-2);
+  font: 500 14px/1 var(--fonte); font-variant-numeric: tabular-nums;
+}
+.paginacao__pag:hover { background: var(--superficie-3); color: var(--texto); }
+.paginacao__pag[aria-current="page"] { background: var(--acao); color: var(--sobre-acao); }
+.paginacao__pag:disabled { color: var(--texto-desab); background: transparent; cursor: not-allowed; }
+.paginacao__reticencias { min-width: 24px; text-align: center; color: var(--texto-3); }
+.paginacao__resumo { display: none; padding: 0 8px; font: var(--t-corpo-p); color: var(--texto-2); font-variant-numeric: tabular-nums; }
+.paginacao__nav { display: inline-flex; gap: 4px; padding: 0 12px 0 10px; }
+@media (max-width: 600px) {
+  .paginacao__num, .paginacao__reticencias { display: none; }
+  .paginacao__resumo { display: block; }
+  .paginacao__nav span { display: none; }
+  .paginacao__nav { padding: 0; width: 36px; }
+}
+
+/* ==== Card base =========================================================== */
+.cartao {
+  background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--r-lg);
+  padding: var(--e-5); transition: border-color var(--tr-padrao) var(--easing), box-shadow var(--tr-padrao) var(--easing);
+}
+.cartao--p { padding: var(--e-4); border-radius: var(--r-md); }
+.cartao--interativo { cursor: pointer; }
+.cartao--interativo:hover { border-color: var(--borda-forte); box-shadow: var(--sombra-2); }
+.cartao.is-selecionado { border-color: var(--acento); box-shadow: 0 0 0 1px var(--acento); }
+
+/* ==== Barra de progresso ================================================= */
+.progresso { --v: 0%; position: relative; height: 4px; border-radius: 2px; background: var(--superficie-3); overflow: hidden; }
+.progresso::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--v); border-radius: inherit; background: var(--acento); transition: width 300ms var(--easing); }
+.progresso--sucesso::after { background: var(--sucesso); }
+.progresso--erro::after { background: var(--erro); }
+.progresso--indeterminado::after { width: 35%; animation: indeterminado 1.2s var(--easing) infinite; }
+@keyframes indeterminado { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+
+.spinner { width: 16px; height: 16px; flex: none; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: gira 0.7s linear infinite; }
+
+/* === site.css === */
+/* ==========================================================================
+   9barra7 UI · Páginas de venda e página de links
+   Montado sobre tokens, base e básicos. Padrões tirados de IA Studio,
+   PromptHub e Cora.
+   ========================================================================== */
+
+/* ==== Estrutura de página ============================================== */
+.pagina { --largura: 1180px; --gutter: clamp(16px, 3vw, 32px); }
+.envelope { width: 100%; max-width: var(--largura); margin-inline: auto; padding-inline: var(--gutter); }
+.secao { padding-block: clamp(64px, 9vw, 104px); background: var(--fundo); color: var(--texto); }
+.secao--superficie { background: var(--superficie); }
+/* Seção escura: redefine os tokens localmente, os componentes seguem funcionando */
+.secao--inversa {
+  --fundo: #000; --superficie: #111113; --superficie-2: #18181b; --superficie-3: #232327;
+  --texto: #fff; --texto-2: rgba(255,255,255,.74); --texto-3: rgba(255,255,255,.52);
+  --borda: rgba(255,255,255,.14); --borda-forte: rgba(255,255,255,.24); --borda-hover: #fff;
+  --acao: var(--destaque); --acao-hover: var(--destaque-hover); --sobre-acao: var(--sobre-destaque);
+  background: #000; color: #fff;
+}
+.cab-secao { display: grid; gap: var(--e-4); margin-bottom: clamp(32px, 5vw, 48px); }
+.cab-secao .t-h1 { max-width: 20ch; }
+.cab-secao p { max-width: 52ch; color: var(--texto-2); font: var(--t-corpo-g); }
+@media (min-width: 768px) {
+  .cab-secao--lado { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: end; }
+}
+.grade-cards { display: grid; gap: var(--e-5); grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+
+/* ==== Cabeçalho do site ================================================= */
+.site-topo {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--superficie) 86%, transparent);
+  backdrop-filter: var(--vidro-filtro); -webkit-backdrop-filter: var(--vidro-filtro);
+  border-bottom: 1px solid var(--borda);
+}
+.site-topo .envelope { display: flex; align-items: center; gap: var(--e-5); height: 64px; }
+.site-topo__nav { display: flex; gap: var(--e-5); margin-left: auto; }
+.site-topo__nav a { color: var(--texto-2); font: 500 14px/1 var(--fonte); text-decoration: none; }
+.site-topo__nav a:hover, .site-topo__nav a[aria-current] { color: var(--texto); }
+.site-topo__acoes { display: flex; gap: var(--e-2); align-items: center; }
+.site-topo__menu { display: none !important; }
+@media (max-width: 760px) {
+  .site-topo__nav { display: none; }
+  .site-topo__acoes { margin-left: auto; }
+  .site-topo__acoes .btn--secundario { display: none; }
+  .site-topo__menu { display: inline-flex !important; }
+}
+
+/* ==== Abertura (hero) =================================================== */
+.abertura { position: relative; overflow: hidden; padding-block: clamp(56px, 10vw, 120px) clamp(48px, 8vw, 96px); background: var(--superficie); }
+.abertura::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, var(--borda-forte) 1px, transparent 1.4px); background-size: 14px 14px;
+  -webkit-mask: radial-gradient(ellipse 70% 80% at 50% 0%, #000 0%, transparent 70%); mask: radial-gradient(ellipse 70% 80% at 50% 0%, #000 0%, transparent 70%);
+}
+.abertura .envelope { position: relative; display: flex; flex-direction: column; gap: var(--e-5); align-items: flex-start; }
+.abertura--centro .envelope { align-items: center; text-align: center; }
+.abertura__titulo { font: var(--t-display); letter-spacing: var(--tracking-display); max-width: 18ch; }
+.abertura__texto { font: var(--t-corpo-g); color: var(--texto-2); max-width: 54ch; }
+.abertura__acoes { display: flex; flex-wrap: wrap; gap: var(--e-3); }
+.abertura__nota { font: var(--t-corpo-p); color: var(--texto-3); display: flex; gap: var(--e-2); align-items: center; flex-wrap: wrap; }
+@media (max-width: 600px) { .abertura__acoes { width: 100%; flex-direction: column; } .abertura__acoes .btn { width: 100%; } }
+
+/* ==== Vídeo de apresentação =========================================== */
+.video-capa {
+  position: relative; display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; padding: 0; overflow: hidden;
+  border: 1px solid var(--borda); border-radius: var(--r-lg); background: var(--superficie-3); cursor: pointer; color: inherit;
+}
+.video-capa img, .video-capa video { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--easing); }
+.video-capa:hover img { transform: scale(1.02); }
+.video-capa__play {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: grid; place-items: center;
+  width: 72px; height: 72px; border-radius: 50%; background: var(--superficie); color: var(--texto); box-shadow: var(--sombra-3);
+  transition: scale var(--tr-padrao) var(--easing);
+}
+.video-capa:hover .video-capa__play { scale: 1.06; }
+.video-capa__play .ic { width: 28px; height: 28px; margin-left: 3px; }
+.video-capa__duracao { position: absolute; left: 14px; bottom: 14px; background: var(--vidro); backdrop-filter: var(--vidro-filtro); color: var(--texto); }
+.video-capa:focus-visible { border-radius: var(--r-lg); }
+
+/* ==== Antes e depois ================================================== */
+.comparador { --pos: 50%; position: relative; aspect-ratio: 4 / 3; max-width: 100%; border-radius: var(--r-lg); overflow: hidden; background: var(--superficie-3); user-select: none; touch-action: pan-y; }
+.comparador img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.comparador__depois { clip-path: inset(0 0 0 var(--pos)); }
+.comparador__linha { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: #fff; pointer-events: none; }
+.comparador__alca { position: absolute; top: 50%; left: var(--pos); translate: -50% -50%; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #fff; color: #111; box-shadow: var(--sombra-3); pointer-events: none; }
+.comparador__faixa { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+.comparador__faixa:focus-visible ~ .comparador__alca { outline: 3px solid var(--foco); outline-offset: 2px; }
+.comparador__rotulo { position: absolute; top: 14px; background: rgba(0,0,0,.6); color: #fff; pointer-events: none; }
+.comparador__rotulo--antes { left: 14px; }
+.comparador__rotulo--depois { right: 14px; }
+
+/* ==== Depoimento ====================================================== */
+.depoimento { display: flex; flex-direction: column; gap: var(--e-4); padding: var(--e-5); border: 1px solid var(--borda); border-radius: var(--r-lg); background: var(--superficie); }
+.depoimento__texto { font: 400 17px/1.55 var(--fonte); color: var(--texto); text-wrap: pretty; }
+.depoimento__texto::before { content: "“"; } .depoimento__texto::after { content: "”"; }
+.depoimento__autor { display: flex; align-items: center; gap: var(--e-3); margin-top: auto; }
+.depoimento__nome { font: var(--t-rotulo); }
+.depoimento__papel { font: var(--t-legenda); color: var(--texto-3); }
+.depoimento__resultado { align-self: flex-start; }
+
+/* ==== Oferta / preço ================================================== */
+.oferta { display: flex; flex-direction: column; gap: var(--e-5); padding: var(--e-6); border: 1px solid var(--borda); border-radius: var(--r-lg); background: var(--superficie); max-width: 440px; width: 100%; }
+.oferta__nome { font: var(--t-sobrelinha); letter-spacing: var(--tracking-sobrelinha); text-transform: uppercase; color: var(--texto-2); }
+.oferta__de { font: var(--t-corpo-p); color: var(--texto-3); text-decoration: line-through; }
+.oferta__preco { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.oferta__preco strong { font: 600 clamp(36px, 5vw, 48px)/1 var(--fonte); letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
+.oferta__preco span { font: var(--t-corpo-p); color: var(--texto-2); }
+.oferta__vista { font: var(--t-corpo-p); color: var(--texto-2); margin-top: 6px; }
+.oferta__itens { display: flex; flex-direction: column; gap: var(--e-3); margin: 0; padding: var(--e-5) 0 0; list-style: none; border-top: 1px solid var(--borda); }
+.oferta__itens li { display: flex; gap: var(--e-3); font: var(--t-corpo); }
+.oferta__itens .ic { flex: none; width: 18px; height: 18px; margin-top: 3px; color: var(--sucesso); }
+.oferta__garantia { display: flex; gap: var(--e-2); align-items: center; font: var(--t-legenda); color: var(--texto-3); justify-content: center; }
+.oferta--destaque { border-color: var(--acao); box-shadow: 0 0 0 1px var(--acao), var(--sombra-3); }
+.secao--inversa .oferta__itens .ic { color: var(--destaque); }
+
+/* ==== Rodapé do site ================================================== */
+.site-rodape { position: relative; overflow: hidden; padding-block: var(--e-8) var(--e-6); background: #000; color: #fff; }
+.site-rodape .envelope { display: grid; gap: var(--e-6); position: relative; }
+.site-rodape__topo { display: grid; gap: var(--e-6); grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.site-rodape .marca img { filter: invert(1); }
+.site-rodape h4 { font: var(--t-sobrelinha); letter-spacing: var(--tracking-sobrelinha); text-transform: uppercase; color: rgba(255,255,255,.52); margin-bottom: var(--e-3); }
+.site-rodape ul { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.site-rodape a { color: rgba(255,255,255,.8); font: var(--t-corpo-p); }
+.site-rodape a:hover { color: #fff; }
+.site-rodape__legal { display: flex; justify-content: space-between; gap: var(--e-3); flex-wrap: wrap; padding-top: var(--e-5); border-top: 1px solid rgba(255,255,255,.14); font: var(--t-legenda); color: rgba(255,255,255,.52); }
+.site-rodape__agua { display: block; width: 100%; height: auto; opacity: .08; filter: invert(1); margin-top: var(--e-4); }
+.site-rodape :focus-visible { outline-color: #fff; }
+
+/* ==== Página de links (hub) =========================================== */
+.links-pagina { width: 100%; max-width: 480px; margin-inline: auto; padding: var(--e-7) var(--e-4) var(--e-6); display: flex; flex-direction: column; gap: var(--e-6); }
+.perfil { display: flex; flex-direction: column; align-items: center; gap: var(--e-3); text-align: center; }
+.perfil .avatar { --tam: 88px; font-size: 30px; box-shadow: 0 0 0 4px var(--superficie), 0 0 0 5px var(--borda); }
+.perfil__nome { font: var(--t-h2); letter-spacing: var(--tracking-h2); display: flex; align-items: center; gap: 6px; }
+.perfil__nome .ic { color: var(--acento); width: 20px; height: 20px; }
+.perfil__bio { font: var(--t-corpo); color: var(--texto-2); max-width: 36ch; }
+.redes { display: flex; gap: var(--e-2); justify-content: center; flex-wrap: wrap; }
+/* aceita link e botão: a fileira mistura redes com uma ação (compartilhar) sem mudar de forma */
+.redes :is(a, button) {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: var(--texto);
+  background: none; border: 0; padding: 0; font: inherit; cursor: pointer; -webkit-appearance: none; appearance: none;
+  transition: background-color var(--tr-padrao);
+}
+.redes :is(a, button):hover { background: var(--superficie-3); }
+.redes :is(a, button):focus-visible { border-radius: 50%; }
+/* variante em caixa: usa o mesmo contêiner dos links, para páginas feitas de cartões */
+.redes--caixa :is(a, button) { width: 44px; height: 44px; border-radius: var(--r-md); background: var(--superficie); border: 1px solid var(--borda); }
+.redes--caixa :is(a, button):hover { background: var(--superficie); border-color: var(--borda-forte); }
+.redes--caixa :is(a, button):focus-visible { border-radius: var(--r-md); }
+.links { display: flex; flex-direction: column; gap: var(--e-3); margin: 0; padding: 0; list-style: none; }
+.links__grupo { font: var(--t-sobrelinha); letter-spacing: var(--tracking-sobrelinha); text-transform: uppercase; color: var(--texto-3); text-align: center; margin-top: var(--e-3); }
+.link {
+  display: flex; align-items: center; gap: var(--e-3); min-height: 60px; padding: 8px 14px 8px 8px;
+  border: 1px solid var(--borda); border-radius: var(--r-lg); background: var(--superficie); color: var(--texto);
+  text-decoration: none !important;
+  transition: border-color var(--tr-padrao) var(--easing), transform var(--tr-rapida) var(--easing), box-shadow var(--tr-padrao) var(--easing);
+}
+.link:hover { border-color: var(--borda-hover); }
+.link:active { transform: scale(0.985); }
+.link:focus-visible { border-radius: var(--r-lg); }
+.link__icone { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 14px; background: var(--superficie-3); color: var(--texto); overflow: hidden; }
+.link__icone img { width: 100%; height: 100%; object-fit: cover; }
+.link__icone--marca { background: var(--superficie); border: 1px solid var(--borda); padding: 8px; }
+.link__icone--marca img { object-fit: contain; }
+.link__texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.link__titulo { font: 600 15px/1.3 var(--fonte); overflow-wrap: anywhere; }
+.link__sub { font: var(--t-legenda); color: var(--texto-3); }
+.link > .ic:last-child { flex: none; color: var(--texto-3); }
+.link--principal { background: var(--acao); color: var(--sobre-acao); border-color: transparent; }
+.link--principal:hover { background: var(--acao-hover); border-color: transparent; }
+.link--principal .link__sub, .link--principal > .ic:last-child { color: color-mix(in srgb, var(--sobre-acao) 70%, transparent); }
+.link--principal .link__icone { background: color-mix(in srgb, var(--sobre-acao) 14%, transparent); color: var(--sobre-acao); }
+.link--destaque { flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden; }
+.link--destaque .link__capa { aspect-ratio: 16 / 9; width: 100%; object-fit: cover; }
+.link--destaque .link__corpo { display: flex; align-items: center; gap: var(--e-3); padding: 12px 14px; }
+.link.is-desabilitado { opacity: .5; pointer-events: none; }
+.links-pagina__rodape { display: flex; justify-content: center; }
+.links-pagina__rodape .marca img { height: 16px; opacity: .7; }
+:root[data-theme="dark"] .link__icone--marca img { filter: invert(1); }
+.perfil > .marca img { height: 26px; }
+:root[data-theme="dark"] .perfil > .marca img { filter: invert(1); }
+
+/* ==== Porta de produto (card com a faixa da marca) ======================
+   Padrão de promptadores.9barra7.com/escolher. A faixa é um SVG de
+   assets/faixas; ela é mais larga que o card e fica presa à esquerda.
+   ========================================================================= */
+.portas { display: grid; gap: var(--e-3); margin: 0; padding: 0; list-style: none; }
+.porta {
+  display: block; overflow: hidden; color: var(--texto); text-decoration: none !important;
+  background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--r-lg);
+  transition: transform var(--tr-rapida) var(--easing), box-shadow var(--tr-painel) var(--easing), border-color var(--tr-padrao) var(--easing);
+}
+.porta__faixa { position: relative; display: block; overflow: hidden; height: clamp(140px, 40vw, 180px); }
+.porta__faixa > img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left center; }
+.porta__txt { display: block; padding: var(--e-5); }
+.porta__nome { display: block; font: var(--t-h3); letter-spacing: var(--tracking-h3); margin-bottom: var(--e-1); }
+.porta__texto { display: block; font: var(--t-corpo-p); color: var(--texto-2); }
+.porta__ir { display: inline-flex; align-items: center; gap: var(--e-2); margin-top: var(--e-4); font: var(--t-rotulo); color: var(--acento-texto); }
+.porta__ir .ic { transition: transform var(--tr-padrao) var(--easing); }
+.porta:active { transform: scale(0.98); }
+.porta:focus-visible { border-radius: var(--r-lg); }
+@media (hover: hover) and (pointer: fine) {
+  .porta:hover { transform: translateY(-3px); border-color: transparent; box-shadow: var(--sombra-3); }
+  .porta:hover:active { transform: translateY(-1px) scale(0.98); }
+  .porta:hover .porta__ir .ic { transform: translateX(4px); }
+}
+
+</style>
+</head>
+<body class="pagina">
+<script>
+/* ==========================================================================
+   9barra7 B7 · Ícones
+   Grade 24×24, traço 1.75, pontas e junções arredondadas, sem preenchimento.
+   Uso: <svg class="ic"><use href="#i-busca"/></svg>
+   ========================================================================== */
+(function () {
+  const I = {
+    mais: '<path d="M12 5v14M5 12h14"/>',
+    fechar: '<path d="M6 6l12 12M18 6L6 18"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    'seta-baixo': '<path d="M6 9l6 6 6-6"/>',
+    'seta-cima': '<path d="M6 15l6-6 6 6"/>',
+    'seta-dir': '<path d="M9 6l6 6-6 6"/>',
+    'seta-esq': '<path d="M15 6l-6 6 6 6"/>',
+    'flecha-dir': '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    'flecha-cima': '<path d="M12 19V5M6 11l6-6 6 6"/>',
+    externo: '<path d="M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4"/>',
+    busca: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
+    olho: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+    'olho-off': '<path d="M3 3l18 18M10.6 5.6A9.7 9.7 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.6 6.7C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+    cadeado: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+    email: '<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/>',
+    usuario: '<circle cx="12" cy="8" r="3.75"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/>',
+    usuarios: '<circle cx="9" cy="8.5" r="3.25"/><path d="M3 19.5c.6-3 3-4.75 6-4.75s5.4 1.75 6 4.75M15.5 5.6a3.25 3.25 0 0 1 0 5.8M17.5 14.9c1.9.6 3.1 2.2 3.5 4.6"/>',
+    ajustes: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+    engrenagem: '<circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.5 7.5 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.4a7.5 7.5 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9a7.5 7.5 0 0 0 2.6 1.5l.4 2.4h4l.4-2.4a7.5 7.5 0 0 0 2.6-1.5l2.4.9 2-3.4z"/>',
+    'mais-h': '<circle cx="5.5" cy="12" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="18.5" cy="12" r="1.1"/>',
+    'mais-v': '<circle cx="12" cy="5.5" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="12" cy="18.5" r="1.1"/>',
+    copiar: '<rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/>',
+    editar: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
+    'polegar-cima': '<path d="M7.5 10.5v9h-3v-9h3zM7.5 10.5L11 3.5a2 2 0 0 1 2.5 2.2l-.6 3.8h5.4a2 2 0 0 1 2 2.4l-1.4 6.5a2 2 0 0 1-2 1.6H7.5"/>',
+    'polegar-baixo': '<path d="M7.5 13.5v-9h-3v9h3zM7.5 13.5L11 20.5a2 2 0 0 0 2.5-2.2l-.6-3.8h5.4a2 2 0 0 0 2-2.4l-1.4-6.5a2 2 0 0 0-2-1.6H7.5"/>',
+    refazer: '<path d="M20 11.5A8 8 0 1 1 17.7 6M20 4v4.5h-4.5"/>',
+    enviar: '<path d="M12 19V5.5M6 11l6-6 6 6"/>',
+    parar: '<rect x="7" y="7" width="10" height="10" rx="2"/>',
+    clipe: '<path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.2-8.2a3.4 3.4 0 0 1 4.8 4.8L9.9 17a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/>',
+    imagem: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.75"/><path d="M20.5 15.5l-4.8-4.8L6 19.5"/>',
+    arquivo: '<path d="M13.5 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z"/><path d="M13.5 3.5V9H19"/>',
+    'arquivo-texto': '<path d="M13.5 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z"/><path d="M13.5 3.5V9H19M8.5 13h7M8.5 16.5h5"/>',
+    pasta: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
+    upload: '<path d="M12 15.5V4M7 8.5l5-5 5 5M4.5 15v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3"/>',
+    download: '<path d="M12 4v11.5M7 10.5l5 5 5-5M4.5 15v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3"/>',
+    ampliar: '<path d="M14.5 4H20v5.5M9.5 20H4v-5.5M20 4l-6.5 6.5M4 20l6.5-6.5"/>',
+    brilho: '<path d="M12 3.5l1.9 5.1a2.4 2.4 0 0 0 1.5 1.5l5.1 1.9-5.1 1.9a2.4 2.4 0 0 0-1.5 1.5L12 20.5l-1.9-5.1a2.4 2.4 0 0 0-1.5-1.5L3.5 12l5.1-1.9a2.4 2.4 0 0 0 1.5-1.5z"/><path d="M19 3v3M17.5 4.5h3"/>',
+    raio: '<path d="M13 3L5 13.5h6.5L11 21l8-10.5h-6.5z"/>',
+    globo: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.4 3.5 5.2 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.2-3.5-8.5S9.7 5.9 12 3.5z"/>',
+    link: '<path d="M10 14a4.2 4.2 0 0 0 6 0l3.2-3.2a4.2 4.2 0 0 0-6-6L12 6M14 10a4.2 4.2 0 0 0-6 0l-3.2 3.2a4.2 4.2 0 0 0 6 6L12 18"/>',
+    lixeira: '<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l.8 11.6a2 2 0 0 0 2 1.9h5.4a2 2 0 0 0 2-1.9L17.5 7M10 11v5.5M14 11v5.5"/>',
+    info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/>',
+    alerta: '<path d="M10.3 4.3L2.9 17.5A2 2 0 0 0 4.6 20.5h14.8a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 16.8v.2"/>',
+    'alerta-circulo': '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.3v.2"/>',
+    'check-circulo': '<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.3l2.6 2.6 4.8-5.3"/>',
+    'x-circulo': '<circle cx="12" cy="12" r="8.5"/><path d="M9.2 9.2l5.6 5.6M14.8 9.2l-5.6 5.6"/>',
+    relogio: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    sino: '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2.2 2.2 0 0 0 4 0"/>',
+    casa: '<path d="M4 10.5L12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-5v6h-4A1.5 1.5 0 0 1 4 19z"/>',
+    comando: '<path d="M9 9V6.5A2.5 2.5 0 1 0 6.5 9H17.5A2.5 2.5 0 1 0 15 6.5v11a2.5 2.5 0 1 0 2.5-2.5h-11A2.5 2.5 0 1 0 9 17.5z"/>',
+    robo: '<rect x="4.5" y="8" width="15" height="11" rx="3"/><path d="M12 4.5V8M9.5 13v1M14.5 13v1M2.5 12.5v3M21.5 12.5v3"/><circle cx="12" cy="4" r=".8"/>',
+    codigo: '<path d="M8.5 7.5L4 12l4.5 4.5M15.5 7.5L20 12l-4.5 4.5M13.5 5l-3 14"/>',
+    terminal: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M7 9.5l3 2.5-3 2.5M12.5 15h4.5"/>',
+    camadas: '<path d="M12 3.5l8.5 4.5L12 12.5 3.5 8z"/><path d="M3.5 12L12 16.5l8.5-4.5M3.5 16L12 20.5l8.5-4.5"/>',
+    grade: '<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>',
+    varinha: '<path d="M4 20l11-11M13 7l2-2 4 4-2 2M18 3v2M21 6h-2M8 3.5v2M9 4.5H7M19.5 15v2M20.5 16h-2"/>',
+    play: '<path d="M7.5 5.5v13l11-6.5z"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    sair: '<path d="M14.5 4.5h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3M10 16.5L5.5 12 10 7.5M5.5 12h10"/>',
+    sol: '<circle cx="12" cy="12" r="3.75"/><path d="M12 3v1.5M12 19.5V21M3 12h1.5M19.5 12H21M5.6 5.6l1.1 1.1M17.3 17.3l1.1 1.1M5.6 18.4l1.1-1.1M17.3 6.7l1.1-1.1"/>',
+    lua: '<path d="M19.5 14.2A8 8 0 0 1 9.8 4.5a8 8 0 1 0 9.7 9.7z"/>',
+    estrela: '<path d="M12 3.8l2.5 5.1 5.6.8-4 4 1 5.6-5-2.7-5 2.7 1-5.6-4-4 5.6-.8z"/>',
+    filtro: '<path d="M4 5.5h16l-6.2 7.3V19l-3.6-1.8v-4.4z"/>',
+    calendario: '<rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+    moeda: '<ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/>',
+    velocidade: '<path d="M4.5 17a8 8 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1"/>',
+    escudo: '<path d="M12 3.5l7 2.8v5.4c0 4.2-2.9 7.6-7 8.8-4.1-1.2-7-4.6-7-8.8V6.3z"/><path d="M9 12l2 2 4-4.2"/>',
+    cerebro: '<path d="M9.5 4.5a2.5 2.5 0 0 0-2.4 1.9A3 3 0 0 0 4.5 9.5c0 .7.2 1.3.6 1.8a3 3 0 0 0 .9 4.9 2.8 2.8 0 0 0 3.5 3.3V4.5zM14.5 4.5a2.5 2.5 0 0 1 2.4 1.9 3 3 0 0 1 2.6 3.1c0 .7-.2 1.3-.6 1.8a3 3 0 0 1-.9 4.9 2.8 2.8 0 0 1-3.5 3.3V4.5z"/>',
+    mensagem: '<path d="M20 12a7.5 7.5 0 0 1-11 6.6L4 20l1.4-4.6A7.5 7.5 0 1 1 20 12z"/>',
+    varios: '<path d="M8 6.5h11M8 12h11M8 17.5h11M4.5 6.5v0M4.5 12v0M4.5 17.5v0"/>',
+    vetor: '<path d="M4 20c4-1 6-4 7-8s3-7 9-8"/><circle cx="4" cy="20" r="1.5"/><circle cx="20" cy="4" r="1.5"/>',
+    cubo: '<path d="M12 3.5l7.5 4.2v8.6L12 20.5l-7.5-4.2V7.7z"/><path d="M4.5 7.7L12 12l7.5-4.3M12 12v8.5"/>',
+    video: '<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="M16 10.5l5-3v9l-5-3"/>',
+    microfone: '<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/>',
+    carregando: '<path d="M12 3.5a8.5 8.5 0 1 1-8.5 8.5"/>',
+    pin: '<path d="M9 4.5h6M10 4.5v5.2L6.5 13h11L14 9.7V4.5M12 13v6.5"/>',
+    historico: '<path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/><path d="M12 8v4l2.8 1.8"/>',
+    livro: '<path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h13.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h13.5v-3"/>',
+    instagram: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6"/>',
+    youtube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.3v5.4l4.6-2.7z"/>',
+    whatsapp: '<path d="M4 20l1.2-4.1A8.3 8.3 0 1 1 8.4 19z"/><path d="M9 8.5c0 3.6 2.9 6.5 6.5 6.5l.9-1.7-2.2-1-1 .9a4.6 4.6 0 0 1-2.4-2.4l.9-1-1-2.2z"/>',
+    tiktok: '<path d="M14 3.5v11.2a3.8 3.8 0 1 1-3.8-3.8M14 3.5c.3 2.6 2.3 4.6 5 4.8"/>',
+    linkedin: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 10.5v6M8 7.5v.2M12 16.5v-6M12 13a2.5 2.5 0 0 1 5 0v3.5"/>',
+    compartilhar: '<circle cx="17.5" cy="6" r="2.6"/><circle cx="6.5" cy="12" r="2.6"/><circle cx="17.5" cy="18" r="2.6"/><path d="M15.2 7.3 8.8 10.7M8.8 13.3l6.4 3.4"/>',
+    behance: '<path d="M3.5 6v12M3.5 6h4.5a3 3 0 0 1 0 6H3.5M3.5 12h5a3 3 0 0 1 0 6H3.5M14 14.5h7a3.5 3.5 0 1 0-1.03 2.47M15 7.5h5"/>',
+
+    /* Marcas: glifo cheio, para assinar redes sociais. Desenhos do Simple Icons (CC0),
+       menos o e-mail, que é nosso. Use com .ic; a cor vem do texto. */
+    'marca-instagram': '<path fill="currentColor" stroke="none" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/>',
+    'marca-tiktok': '<path fill="currentColor" stroke="none" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>',
+    'marca-behance': '<path fill="currentColor" stroke="none" d="M16.969 16.927a2.561 2.561 0 0 0 1.901.677 2.501 2.501 0 0 0 1.531-.475c.362-.235.636-.584.779-.99h2.585a5.091 5.091 0 0 1-1.9 2.896 5.292 5.292 0 0 1-3.091.88 5.839 5.839 0 0 1-2.284-.433 4.871 4.871 0 0 1-1.723-1.211 5.657 5.657 0 0 1-1.08-1.874 7.057 7.057 0 0 1-.383-2.393c-.005-.8.129-1.595.396-2.349a5.313 5.313 0 0 1 5.088-3.604 4.87 4.87 0 0 1 2.376.563c.661.362 1.231.87 1.668 1.485a6.2 6.2 0 0 1 .943 2.133c.194.821.263 1.666.205 2.508h-7.699c-.063.79.184 1.574.688 2.187ZM6.947 4.084a8.065 8.065 0 0 1 1.928.198 4.29 4.29 0 0 1 1.49.638c.418.303.748.711.958 1.182.241.579.357 1.203.341 1.83a3.506 3.506 0 0 1-.506 1.961 3.726 3.726 0 0 1-1.503 1.287 3.588 3.588 0 0 1 2.027 1.437c.464.747.697 1.615.67 2.494a4.593 4.593 0 0 1-.423 2.032 3.945 3.945 0 0 1-1.163 1.413 5.114 5.114 0 0 1-1.683.807 7.135 7.135 0 0 1-1.928.259H0V4.084h6.947Zm-.235 12.9c.308.004.616-.029.916-.099a2.18 2.18 0 0 0 .766-.332c.228-.158.411-.371.534-.619.142-.317.208-.663.191-1.009a2.08 2.08 0 0 0-.642-1.715 2.618 2.618 0 0 0-1.696-.505h-3.54v4.279h3.471Zm13.635-5.967a2.13 2.13 0 0 0-1.654-.619 2.336 2.336 0 0 0-1.163.259 2.474 2.474 0 0 0-.738.62 2.359 2.359 0 0 0-.396.792c-.074.239-.12.485-.137.734h4.769a3.239 3.239 0 0 0-.679-1.785l-.002-.001Zm-13.813-.648a2.254 2.254 0 0 0 1.423-.433c.399-.355.607-.88.56-1.413a1.916 1.916 0 0 0-.178-.891 1.298 1.298 0 0 0-.495-.533 1.851 1.851 0 0 0-.711-.274 3.966 3.966 0 0 0-.835-.073H3.241v3.631h3.293v-.014ZM21.62 5.122h-5.976v1.527h5.976V5.122Z"/>',
+    'marca-linkedin': '<path fill="currentColor" stroke="none" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>',
+    'marca-youtube': '<path fill="currentColor" stroke="none" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>',
+    'marca-whatsapp': '<path fill="currentColor" stroke="none" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>',
+    'compartilhar-cheio': '<g fill="currentColor" stroke="none"><circle cx="17.5" cy="6" r="3"/><circle cx="6.5" cy="12" r="3"/><circle cx="17.5" cy="18" r="3"/><path d="M15.74 8.32L9.34 11.72L8.26 9.68L14.66 6.28ZM9.34 12.28L15.74 15.68L14.66 17.72L8.26 14.32Z"/></g>',
+    'marca-email-cheio': '<path fill="currentColor" stroke="none" d="M2.4 6.6c0-.9.7-1.6 1.6-1.6h16c.9 0 1.6.7 1.6 1.6v.4L12 12.8 2.4 7zm0 2.2 9.1 5.5c.3.2.7.2 1 0l9.1-5.5v8.6c0 .9-.7 1.6-1.6 1.6H4c-.9 0-1.6-.7-1.6-1.6z"/>',
+    teclado: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h1M10 10h1M13.5 10h1M17 10h.5M7.5 14h9"/>',
+  };
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">' +
+    Object.entries(I).map(([n, p]) =>
+      `<symbol id="i-${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${p}</symbol>`
+    ).join('') + '</svg>';
+  const inject = () => document.body.insertAdjacentHTML('afterbegin', svg);
+  document.body ? inject() : document.addEventListener('DOMContentLoaded', inject);
+  window.B7Icones = Object.keys(I);
+})();
+
+</script>
+
+<!-- Topo de Navegação -->
+<header class="top-playbook">
+  <div class="envelope">
+    <a class="marca" href="#topo" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+      <span class="t-h4" style="color:var(--texto);font-weight:700;">9BARRA7</span>
+      <span class="badge badge--p badge--contorno">Always On</span>
+    </a>
+    <nav class="nav-playbook">
+      <a href="#estrategia">1. Estratégia</a>
+      <a href="#carrossel">2. Tudo sobre Carrossel</a>
+      <a href="#reels">3. Tudo sobre Reels</a>
+      <a href="#calendarizacao">4. Calendarização</a>
+    </nav>
+    <button class="btn btn--discreto btn--icone" type="button" data-alternar-tema aria-label="Alternar tema" style="margin-left:8px;">
+      <svg class="ic ic--p" aria-hidden="true"><use href="#i-lua"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="topo">
+
+  <!-- Abertura -->
+  <section class="secao" style="padding-top:var(--e-7);padding-bottom:var(--e-6);">
+    <div class="envelope pilha" style="gap:var(--e-5);">
+      <span class="t-sobrelinha suave">Manual de Mensagem e Embalagem</span>
+      <h1 class="t-display" style="max-width:22ch;">Playbook Tático do Always On</h1>
+      <p class="t-corpo-g" style="color:var(--texto-2);max-width:54ch;">
+        Foco no papel de cada post, na mensagem que precisa ser dita e na forma de embalar essa mensagem para atrair arquitetos e gerar leads no CRM.
+      </p>
+
+      <div class="bloco-regra" style="max-width:70ch;">
+        <span class="t-sobrelinha suave" style="display:block;margin-bottom:var(--e-1);">A Regra de Ouro</span>
+        <p class="t-h4" style="color:var(--texto);">
+          Vendemos a imagem que aprova o projeto e mantém o arquiteto relevante, com fidelidade, consistência e método.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 1. ESTRATÉGIA                                                     -->
+  <!-- ================================================================= -->
+  <section id="estrategia" class="secao secao--superficie">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">01 · Estrutura</span>
+        <h2 class="t-h1">A Estratégia</h2>
+        <p>As duas forças do público, o papel de cada canal e o alinhamento com a consultoria Sobe.</p>
+      </div>
+
+      <!-- 1.1 As Forças de Mercado -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.1 As Duas Forças do Público</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          O conteúdo responde a dois dados concretos da pesquisa com os arquitetos:
+        </p>
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Fator nº 1 de Compra</span>
+            <h4 class="t-h4">Fidelidade e Qualidade (+78)</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              O arquiteto não compra arte conceitual. Ele precisa ter certeza de que o modelo do SketchUp sai renderizado com precisão de medidas, materiais e iluminação.
+            </p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Maior Objeção do Mercado</span>
+            <h4 class="t-h4">Inconsistência (86%)</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              86% dos profissionais reclamam que a IA altera a marcenaria ou muda o tom da madeira entre dois ângulos. O conteúdo precisa demonstrar consistência entre cenas em todas as semanas.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.2 O Papel dos Canais -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.2 O Papel Tático de Cada Canal</h3>
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo" style="color:var(--acento-texto);">Feed · Reels (3x por semana)</span>
+            <h4 class="t-h4">Descoberta e Alcance Frio</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              Alcança quem ainda não segue o perfil. Vídeos de 35 a 50 segundos apontando um erro ou entregando imagem pronta. Sem chamada de compra.
+            </p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo" style="color:var(--acento-texto);">Feed · Carrossel (3x por semana)</span>
+            <h4 class="t-h4">Nutrição Técnica e Captação CRM</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              Gera autoridade e capta leads no GoHighLevel. Entrega o método no feed e libera arquivos práticos via comentário de palavra-chave.
+            </p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo" style="color:var(--acento-texto);">Stories e Mensagens Diretas</span>
+            <h4 class="t-h4">Relacionamento e Venda</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">
+              Rotina do estúdio em 3 turnos (manhã, tarde e noite), caixinha técnica de quinta-feira e condução para as páginas de compra do Workshop e Cora.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.3 As 4 Editorias -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.3 As 4 Editorias Estratégicas</h3>
+        <div class="cartao" style="padding:0;overflow:hidden;">
+          <table class="tabela-quadro">
+            <thead>
+              <tr>
+                <th>Editoria</th>
+                <th>Papel Tático</th>
+                <th>Mensagem Central</th>
+                <th>O que Evitar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Método e Fidelidade</strong></td>
+                <td>Combater o medo da IA que inventa coisas.</td>
+                <td>A IA só erra quando falta método de controle e lente. O render sai fiel ao projeto modelado.</td>
+                <td>Nunca prometer mágica ou botão milagroso.</td>
+              </tr>
+              <tr>
+                <td><strong>2. Critério e Aprovação</strong></td>
+                <td>Posicionar o olhar estético da Marilia.</td>
+                <td>O cliente sente quando a luz ou o reflexo parecem falsos. Mostramos os detalhes que garantem a aprovação.</td>
+                <td>Cortar palavras vazias como "revolucionar" ou jargões de tecnologia.</td>
+              </tr>
+              <tr>
+                <td><strong>3. Bastidor Real</strong></td>
+                <td>Provar autoridade com projetos reais.</td>
+                <td>Projetos entregues pelo escritório 9barra7: clientes exigentes, prazos curtos e solução na prática.</td>
+                <td>Não esconda erros: mostre o teste inicial antes da imagem final aprovada.</td>
+              </tr>
+              <tr>
+                <td><strong>4. Posição e Mercado</strong></td>
+                <td>Valorizar a profissão do arquiteto.</td>
+                <td>A IA é a nova prancheta. Quem decide o projeto é o profissional. Renderizar rápido protege o lucro.</td>
+                <td>Evitar terrorismo de que a IA vai substituir arquitetos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 1.4 Alinhamento Comercial -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">1.4 Alinhamento com os Lançamentos</h3>
+        
+        <!-- Looping Anual -->
+        <div class="cartao pilha" style="gap:var(--e-3);background:var(--superficie-2);">
+          <span class="t-sobrelinha suave">O Mapa Anual em Looping</span>
+          <h4 class="t-h4">Os 4 Ciclos Trimestrais de 55 Dias</h4>
+          <p class="t-corpo-p" style="color:var(--texto-2);">
+            A consultoria Sobe desenhou um modelo que roda em looping contínuo todo ano (Q1, Q2, Q3 e Q4). Cada ciclo tem 55 dias de campanha:
+          </p>
+          <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--e-2);">
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">1. Lote 0 · 3 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Aviso por e-mail e WhatsApp para a base interna sem tráfego pago.</p>
+            </div>
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">2. Lotes 1 e 2 · ~38 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Venda de ingressos com mídia paga e Always On captando leads na DM.</p>
+            </div>
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">3. Lote 3 · 7 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Último lote com escassez de preço até o sábado do Workshop (D0).</p>
+            </div>
+            <div class="cartao cartao--p pilha" style="gap:var(--e-1);background:var(--superficie);">
+              <span class="t-rotulo suave">4. Carrinho · 7 dias</span>
+              <p class="t-legenda" style="color:var(--texto-2);">Abertura do IA Studio de sábado a sexta 23h59 (downsell só no 1 a 1).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ciclo Atual 2026 -->
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">26/10 a 20/11</span>
+            <h4 class="t-h4">Lotes 1 e 2 do Workshop</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">Carrosséis focam em captar cadastros na DM para alimentar a lista de ingressos do Workshop.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">A partir de 09/11</span>
+            <h4 class="t-h4">Cora Aberto ao Público</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">Posts destacam fidelidade ao SketchUp e custo previsível de créditos. Stories convidam para o teste.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">21 a 27/11</span>
+            <h4 class="t-h4">Lote 3 · Black Friday</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">Pautas mostram o tempo perdido renderizando em softwares antigos. Stories em contagem regressiva.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-rotulo suave">28/11 a 04/12</span>
+            <h4 class="t-h4">Carrinho IA Studio</h4>
+            <p class="t-corpo-p" style="color:var(--texto-2);">O feed publica estudos de caso de alunos com projetos aprovados. Os Stories fecham as inscrições.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 2. TUDO SOBRE CARROSSEL                                           -->
+  <!-- ================================================================= -->
+  <section id="carrossel" class="secao">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">02 · Formato Feed</span>
+        <h2 class="t-h1">Tudo sobre Carrossel</h2>
+        <p>A ferramenta de retenção técnica no feed e geração diária de leads no CRM.</p>
+      </div>
+
+      <!-- 2.1 Papel -->
+      <div class="pilha" style="gap:var(--e-2);">
+        <h3 class="t-h3">2.1 O Papel Tático do Carrossel</h3>
+        <p class="t-corpo" style="color:var(--texto-2);max-width:64ch;">
+          O carrossel aprofunda o método e gera salvamento. Ele entrega o raciocínio completo no feed e usa a lâmina final para direcionar o arquiteto para a automação de DM no GoHighLevel.
+        </p>
+      </div>
+
+      <!-- 2.2 Estrutura 5 Batidas -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">2.2 A Estrutura em 5 Batidas (Lâmina por Lâmina)</h3>
+        <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâmina 1</span>
+            <h4 class="t-h4">The Hook</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Interrompe o scroll. Render de alto impacto e título apontando um erro, contraste ou tese.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâmina 2</span>
+            <h4 class="t-h4">The Promise</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Valida a capa. Resume o briefing em uma frase e garante que o conteúdo cumpre o que prometeu.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâminas 3 a 6</span>
+            <h4 class="t-h4">The Pull</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Desenvolvimento técnico. Mostra o erro inicial da IA, o porquê do problema e o teste intermediário.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâminas 7 e 8</span>
+            <h4 class="t-h4">The Payoff</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">A entrega do método. Comparativo do modelo com o render aprovado e a regra prática de execução.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Lâmina Final</span>
+            <h4 class="t-h4">The Ask</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Ação direta de captação: foto da Marilia e chamada de comentário para receber o material na DM.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.3 Como Embalar no Carrossel -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">2.3 Como Embalar a Mensagem no Carrossel (Exemplos Reais)</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          As 6 lógicas de raciocínio para estruturar carrosséis de alta retenção e captação de leads:
+        </p>
+
+        <div class="grade-cards">
+          <!-- Modelo E -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Estudo de Caso Real · Modelo E (9 a 11 lâminas)</span>
+            <h4 class="t-h4">"A primeira imagem ensina as outras"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "A IA muda o teu projeto a cada ângulo. Como eu mantenho a série inteira no mesmo projeto."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 4 (Pull):</strong> Mostra duas imagens do mesmo modelo. Na segunda, a madeira do forro ripado mudou de cor. O cliente sente a inconsistência.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 5 a 8 (Payoff):</strong> Na primeira imagem a Marilia define os materiais que não podem mudar. O promptador cruza a imagem 1 com o ângulo 2. A marcenaria fica idêntica.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta PROMPT pra receber o promptador de consistência no direct."</div>
+            </div>
+          </div>
+
+          <!-- Modelo C -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Comparativo Lado a Lado · Modelo C (6 a 10 lâminas)</span>
+            <h4 class="t-h4">"É o mesmo projeto em todas as cenas"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "É o MESMO projeto em todas as tomadas."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 5 (Pull):</strong> Um par por lâmina com modelo SketchUp em cima e render da IA embaixo. Mesmo enquadramento e proporção.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 6 e 7 (Payoff):</strong> Variação de iluminação diurna e noturna sem mover nenhuma parede ou armário de lugar.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta MODELO pra receber a tabela de parâmetros na DM."</div>
+            </div>
+          </div>
+
+          <!-- Modelo B -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Checklist e Auditoria · Modelo B (7 a 9 lâminas)</span>
+            <h4 class="t-h4">"Erros que entregam render amador"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Se o teu render tem isso, o cliente percebe que é IA."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 6 (Pull):</strong> Um detalhe por tela: piso espelhado sem desgaste, quina sem chanfro e sombra sem contato. Critério passa ou não passa.</div>
+              <div class="caixa-roteiro"><strong>Lâmina 7 (Payoff):</strong> Checklist de 5 itens para revisar antes de enviar a apresentação para o cliente.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta CHECKLIST pra receber o PDF de auditoria no direct."</div>
+            </div>
+          </div>
+
+          <!-- Modelo D -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Quebra de Crença · Modelo D (7 a 8 lâminas)</span>
+            <h4 class="t-h4">"Prompt grande não salva"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Prompt com 50 palavras não vai salvar teu render de interiores."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 4 (Pull):</strong> A objeção comum: "Mas Marilia, me falaram que precisa descrever tudo..." Por que a IA ignora adjetivos vazios.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 5 e 6 (Payoff):</strong> O jeito errado (50 adjetivos) contra o jeito estruturado (referência física de luz e lente de câmera).</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta MITO pra receber o modelo de prompt limpo no direct."</div>
+            </div>
+          </div>
+
+          <!-- Modelo F -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Explicação Passo a Passo · Modelo F (8 a 10 lâminas)</span>
+            <h4 class="t-h4">"Como renderizar marcenaria sem derreter puxadores"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Como renderizar marcenaria sob medida sem a IA fundir puxador e gaveta."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 5 (Pull):</strong> Passo 1: exportar viewport crua sem materiais pesados. Passo 2: mapa de profundidade travando arestas. Passo 3: prompt de superfície fosca.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 6 e 7 (Payoff):</strong> Imagem final em zoom de detalhe comprovando a junção de topo e gaveta intacta.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta FLUXO pra receber o guia do passo a passo em PDF."</div>
+            </div>
+          </div>
+
+          <!-- Modelo G -->
+          <div class="cartao pilha" style="gap:var(--e-3);">
+            <span class="t-sobrelinha suave">Diagnóstico e Autópsia · Modelo G (8 a 9 lâminas)</span>
+            <h4 class="t-h4">"Autópsia de um render reprovado"</h4>
+            <div class="pilha" style="gap:var(--e-2);">
+              <div class="caixa-roteiro"><strong>Lâmina 1 (Hook):</strong> "Por que o cliente reprovou essa sala (e não foi o projeto)."</div>
+              <div class="caixa-roteiro"><strong>Lâminas 2 a 5 (Pull):</strong> Análise com círculos vermelhos apontando os 3 erros fatais: luz solar sem direção coerente, reflexo artificial no teto e madeira sem veios.</div>
+              <div class="caixa-roteiro"><strong>Lâminas 6 e 7 (Payoff):</strong> A mesma cena corrigida em 4 minutos aplicando o método de iluminação física.</div>
+              <div class="caixa-roteiro"><strong>Lâmina Final (Ask):</strong> "Comenta DIAGNOSTICO pra receber a folha de conferência de interiores."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.4 Automação de CRM -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">2.4 O Fluxo de Automação de Leads (GoHighLevel)</h3>
+        <div class="cartao pilha" style="gap:var(--e-3);background:var(--superficie-2);">
+          <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 1</span>
+              <strong class="t-rotulo">Chamada no Feed</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">A lâmina final indica a palavra exata em caixa alta (ex: <em>CRITERIO</em>).</p>
+            </div>
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 2</span>
+              <strong class="t-rotulo">DM em 10 Segundos</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">O webhook dispara mensagem automática da Marilia com o link de liberação.</p>
+            </div>
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 3</span>
+              <strong class="t-rotulo">Cadastro Curto</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">Página rápida no Framer ou GHL pedindo Nome, E-mail e WhatsApp.</p>
+            </div>
+            <div class="pilha" style="gap:var(--e-1);">
+              <span class="t-sobrelinha suave">Passo 4</span>
+              <strong class="t-rotulo">Lead Qualificado</strong>
+              <p class="t-legenda" style="color:var(--texto-2);">O contato recebe tag no CRM e entra nas mensagens de Lote 0 do Workshop e Cora.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 3. TUDO SOBRE REELS                                               -->
+  <!-- ================================================================= -->
+  <section id="reels" class="secao secao--superficie">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">03 · Vídeo Curto</span>
+        <h2 class="t-h1">Tudo sobre Reels</h2>
+        <p>A esteira de vídeos verticais focada exclusivamente em atrair novos arquitetos.</p>
+      </div>
+
+      <!-- 3.1 Papel -->
+      <div class="pilha" style="gap:var(--e-2);">
+        <h3 class="t-h3">3.1 O Papel Tático do Reel</h3>
+        <p class="t-corpo" style="color:var(--texto-2);max-width:64ch;">
+          O Reel é uma ferramenta de atração fria. Nenhum reel vende diretamente. A meta operacional é alcançar mais de 60% de contas não-seguidoras e conduzir os novos visitantes para o perfil.
+        </p>
+      </div>
+
+      <!-- 3.2 As 5 Batidas no Tempo -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">3.2 A Estrutura em 5 Batidas no Tempo (Régua de 45 Segundos)</h3>
+        <div class="grade-cards" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">0 a 3s</span>
+            <h4 class="t-h4">1. The Hook</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Primeira frase dita direto no ponto, mostrando o erro em zoom ou o render pronto.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">3 a 8s</span>
+            <h4 class="t-h4">2. The Promise</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Validação rápida: "Vou te mostrar os dois comandos que corrigem isso na prática."</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">8 a 25s</span>
+            <h4 class="t-h4">3. The Pull</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Cortes rápidos mostrando o modelo cru ou o que deu errado antes de mostrar a solução.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">25 a 40s</span>
+            <h4 class="t-h4">4. The Payoff</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">A imagem aprovada com luz correta e medidas preservadas. A técnica utilizável.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">40 a 48s</span>
+            <h4 class="t-h4">5. The Ask</h4>
+            <p class="t-legenda" style="color:var(--texto-2);">Fecho fixo de autoridade da Marilia convidando para seguir o perfil.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.3 As 8 Famílias com Scripts -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">3.3 As 8 Famílias de Ganchos e Roteiros (Scripts Prontos)</h3>
+        <div class="grade-cards">
+          <!-- F1 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F1 · Erro Custoso</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Nomeia um erro que custa o cliente</h4>
+            <div class="caixa-roteiro">
+              "Esse render foi reprovado. E não foi por causa do projeto. O cliente não sabe termos de 3D, mas sente quando o piso reflete como espelho e não tem luz de contato. O problema não é a IA: é que a gente não deu pra ela a informação certa. Olha como muda quando a gente trava o ângulo da câmera e define o desgaste do material. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F2 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F2 · Resultado Antes</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Entrega a imagem pronta primeiro</h4>
+            <div class="caixa-roteiro">
+              "Essa imagem parece fotografia de revista de arquitetura, mas saiu direto dessa modelagem simples do SketchUp. O segredo não tá em encher o prompt de palavras mágicas: tá em como você ensina a IA a ler a geometria original sem inventar marcenaria. Repara na fidelidade dessa esquadria. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F3 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F3 · Contradição</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Derruba o senso comum do mercado</h4>
+            <div class="caixa-roteiro">
+              "Colocar ultra-realista 8k no teu prompt só tá deixando teu render com cara de falso. A IA não entende adjetivos vazios: ela precisa de referências óticas de lente, ângulo e iluminação física real. Quando você substitui adjetivo por física de iluminação, olha o que acontece com a cena. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F4 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F4 · Gravação de Tela</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Direto no software sem introdução</h4>
+            <div class="caixa-roteiro">
+              "É exatamente aqui que 90% dos arquitetos erram na hora de renderizar marcenaria com IA. Se você não travar o mapa de profundidade, o puxador derrete e a gaveta se funde na bancada. Olha o clique que resolve isso em 3 segundos. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F5 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F5 · Bastidor Real</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Entrega sob pressão real de prazo</h4>
+            <div class="caixa-roteiro">
+              "O cliente pediu uma versão noturna dessa fachada faltando duas horas pra reunião de apresentação. No fluxo antigo eu teria que refazer todo o setup de luz no V-Ray e esperar a noite inteira. Com o método, eu converti os pontos de luz na IA mantendo as esquadrias idênticas ao projeto. O projeto foi aprovado sem alterações. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F6 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F6 · Comparação com Critério</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Compara duas imagens com critério visual</h4>
+            <div class="caixa-roteiro">
+              "Qual dessas duas imagens foi feita por IA amadora? Repara nessa quina de gesso. Enquanto uma imagem tem sombra de contato e chanfro real, a outra funde o teto na parede sem oclusão de ambiente. É esse detalhe sutil que faz o cliente rejeitar a apresentação. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F7 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F7 · Explicação Rápida</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Passo a passo direto de um comando essencial</h4>
+            <div class="caixa-roteiro">
+              "Se a tua marcenaria tá saindo borrada na IA, você esqueceu dessa caixa de seleção. Quando você ativa o controle geométrico antes de gerar a cena, a IA mantém a espessura exata da prateleira e a quina do armário. Olha a diferença desse detalhe antes e depois do clique. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+
+          <!-- F8 -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">F8 · Checklist de 3 Pontos</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Conferência rápida antes de enviar a imagem</h4>
+            <div class="caixa-roteiro">
+              "Três coisas pra conferir no teu render antes de mandar pro cliente: primeiro, o reflexo do vidro tá alinhado com a janela? Segundo, o rodapé tem sombra de contato com o piso? Terceiro, a textura da madeira tá na mesma direção em todas as portas? Se passou nos três, pode apresentar com segurança. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.4 Fecho Fixo e Regras de Fala -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">3.4 O Fecho Obrigatório e Regras de Fala</h3>
+        <div class="bloco-regra">
+          <span class="t-sobrelinha suave">O Fecho Falado Fixo (Últimos 8 segundos)</span>
+          <p class="t-h4" style="color:var(--texto);margin-top:var(--e-1);">
+            "Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais conteúdos assim."
+          </p>
+        </div>
+
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <strong class="t-rotulo">Como a Marilia Fala</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Usa "a gente" e "tu" natural.</li>
+              <li>Frases curtas (mediana de 15 palavras).</li>
+              <li>Mostra o render ruim antes do bom para gerar confiança.</li>
+              <li>Explica o motivo técnico por trás de cada ajuste.</li>
+            </ul>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <strong class="t-rotulo">O que Evitar</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Sem "você" formal ou tom distante de folheto.</li>
+              <li>Não prometer economia de tempo no gancho (tempo perde de qualidade).</li>
+              <li>Sem frases prontas de curso ("invista no seu futuro").</li>
+              <li>Cortar travessões e construções negativas na fala.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 4. CALENDARIZAÇÃO                                                 -->
+  <!-- ================================================================= -->
+  <section id="calendarizacao" class="secao">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">04 · Operação</span>
+        <h2 class="t-h1">Calendarização</h2>
+        <p>A grade semanal 3x3, a rotação das lógicas de raciocínio e a esteira quinzenal.</p>
+      </div>
+
+      <!-- 4.1 Grade 3x3 -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.1 A Grade Semanal Fixa (3 Vídeos + 3 Carrosséis)</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          Alternância estrita de segunda a sábado. Domingo é dia de respiro do feed com rotina leve nos Stories.
+        </p>
+
+        <div class="cartao" style="padding:0;overflow:hidden;">
+          <table class="tabela-quadro">
+            <thead>
+              <tr>
+                <th>Dia</th>
+                <th>Formato</th>
+                <th>Lógica de Embalagem</th>
+                <th>Papel e Mensagem</th>
+                <th>Ação e CTA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Segunda</strong></td>
+                <td>Carrossel</td>
+                <td>Quebra de Crença</td>
+                <td>Desmonta um mito comum de mercado logo no início da semana.</td>
+                <td>Comenta MITO (CRM)</td>
+              </tr>
+              <tr>
+                <td><strong>Terça</strong></td>
+                <td>Reel</td>
+                <td>F1 · Erro Custoso</td>
+                <td>Alcança não-seguidores pelo risco do render falso que o cliente percebe.</td>
+                <td>Seguir perfil</td>
+              </tr>
+              <tr>
+                <td><strong>Quarta</strong></td>
+                <td>Carrossel</td>
+                <td>Checklist Passa/Não-Passa</td>
+                <td>Régua técnica com 5 pontos para conferir antes de apresentar o projeto.</td>
+                <td>Comenta CRITERIO (CRM)</td>
+              </tr>
+              <tr>
+                <td><strong>Quinta</strong></td>
+                <td>Reel</td>
+                <td>F4 · Gravação de Tela</td>
+                <td>Mostra na prática o clique no software sem introdução falada.</td>
+                <td>Seguir + Caixinha Stories</td>
+              </tr>
+              <tr>
+                <td><strong>Sexta</strong></td>
+                <td>Carrossel</td>
+                <td>Comparativo Lado a Lado</td>
+                <td>Fidelidade ao SketchUp e consistência entre cenas para salvar no fim de semana.</td>
+                <td>Comenta MODELO (CRM)</td>
+              </tr>
+              <tr>
+                <td><strong>Sábado</strong></td>
+                <td>Reel</td>
+                <td>F2 · Resultado Antes</td>
+                <td>Impacto visual imediato com render fotorrealista de projeto real do estúdio.</td>
+                <td>Seguir perfil</td>
+              </tr>
+              <tr>
+                <td style="color:var(--texto-3);">Domingo</td>
+                <td colspan="4" style="color:var(--texto-3);text-align:center;font-style:italic;">
+                  Respiro do Feed · Stories de rotina pessoal da Marilia e preparação para a semana
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.2 O Calendário Anual em Loop -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.2 O Mapa Anual de Campanhas Sobe (Looping Perpétuo)</h3>
+        <div class="cartao" style="padding:0;overflow:hidden;">
+          <table class="tabela-quadro">
+            <thead>
+              <tr>
+                <th>Ciclo</th>
+                <th>Sábado do Workshop</th>
+                <th>Janela de Ingressos</th>
+                <th>Carrinho IA Studio</th>
+                <th>Foco do Always On</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Ciclo Black Friday 2026</strong></td>
+                <td>28/11/2026</td>
+                <td>26/10 a 27/11 (Lote 3 termina na Black Friday)</td>
+                <td>28/11 a 04/12</td>
+                <td>Captação forte de leads na DM e casos de alunos provando consistência.</td>
+              </tr>
+              <tr>
+                <td><strong>Q1 2027 (Ano Novo)</strong></td>
+                <td>06/03/2027</td>
+                <td>Janeiro a 05/03 (Lote 1 fecha no Carnaval 08-09/02)</td>
+                <td>06/03 a 12/03</td>
+                <td>Planejamento anual dos escritórios e velocidade de entrega.</td>
+              </tr>
+              <tr>
+                <td><strong>Q2 2027 (Meio de Ano)</strong></td>
+                <td>05/06/2027</td>
+                <td>Abril a Maio (55 dias de campanha)</td>
+                <td>05/06 a 11/06</td>
+                <td>Foco em volume de projetos e captação perpétua para o Cora Render.</td>
+              </tr>
+              <tr>
+                <td><strong>Q3 2027 (Inverno)</strong></td>
+                <td>28/08/2027</td>
+                <td>Julho a Agosto (mantém 19 dias de distância do Q4)</td>
+                <td>28/08 a 03/09</td>
+                <td>Consistência geométrica e valorização do portfólio.</td>
+              </tr>
+              <tr>
+                <td><strong>Q4 2027 (Pico de Novembro)</strong></td>
+                <td>06/11/2027</td>
+                <td>Setembro a Outubro (fecha antes do pico de CPM da Black Friday)</td>
+                <td>06/11 a 12/11</td>
+                <td>Atração de profissionais que ainda não adotaram ferramentas de IA.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.3 Esteira Quinzenal RACI -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.3 Esteira Operacional: A Sprint Quinzenal de 14 Dias</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          Como a equipe fecha 6 Reels e 6 Carrosséis com um único bloco de gravação de duas horas da Marilia:
+        </p>
+
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">William Meurer</span>
+            <strong class="t-h4">Estratégia e Redação</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Escreve os 6 roteiros técnicos de Reels.</li>
+              <li>Redige a copy lâmina a lâmina dos 6 carrosséis.</li>
+              <li>Configura as automações e tags no GoHighLevel.</li>
+              <li>Audita as métricas semanais e a regra dos 30%.</li>
+            </ul>
+          </div>
+
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Marilia Fischer</span>
+            <strong class="t-h4">Voz e Autoridade</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Grava o bloco quinzenal de 2 horas (todos os ganchos juntos).</li>
+              <li>Conduz os Stories diários nos 3 turnos.</li>
+              <li>Responde à caixinha técnica de quinta-feira.</li>
+              <li>Fornece os modelos e arquivos dos projetos reais.</li>
+            </ul>
+          </div>
+
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Videomaker</span>
+            <strong class="t-h4">Montagem e Finalização</strong>
+            <ul class="t-corpo-p pilha" style="color:var(--texto-2);gap:var(--e-1);padding-left:var(--e-4);">
+              <li>Decupa e monta os vídeos no Premiere.</li>
+              <li>Aplica os modelos padronizados do Remotion.</li>
+              <li>Sobe o lote quinzenal aprovado com uma semana de folga.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<div id="toast-msg">Roteiro copiado para a área de transferência.</div>
+
+<script>
+/* ==========================================================================
+   9barra7 B7 · Comportamentos
+   Sem dependências. Tudo é ligado por atributos data-* e exposto em window.B7.
+   As respostas da IA e os processos de geração são simulados localmente.
+   ========================================================================== */
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const ic = (n, cls = '') => `<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  const fmtTempo = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const fmtBytes = (b) => b < 1024 ? `${b} B` : b < 1048576 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1048576).toFixed(1).replace('.', ',')} MB`;
+  const agora = () => new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  // Rola só o contêiner, sem mexer na página
+  const rolaDentro = (cont, el) => {
+    const c = cont.getBoundingClientRect(), r = el.getBoundingClientRect();
+    if (r.top < c.top) cont.scrollTop -= c.top - r.top + 6;
+    else if (r.bottom > c.bottom) cont.scrollTop += r.bottom - c.bottom + 6;
+  };
+  const B7 = { ic, esc, rolaDentro };
+
+  /* ---- Tema ------------------------------------------------------------- */
+  B7.tema = {
+    aplicar(t) {
+      document.documentElement.dataset.theme = t;
+      try { localStorage.setItem('b7-tema', t); } catch (e) {}
+      $$('[data-alternar-tema]').forEach((b) => {
+        b.setAttribute('aria-label', t === 'dark' ? 'Usar tema claro' : 'Usar tema escuro');
+        const u = b.querySelector('use'); if (u) u.setAttribute('href', t === 'dark' ? '#i-sol' : '#i-lua');
+      });
+    },
+    iniciar() {
+      let t = null;
+      try { t = localStorage.getItem('b7-tema'); } catch (e) {}
+      if (!t) t = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      this.aplicar(t);
+    },
+  };
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[data-alternar-tema]');
+    if (b) B7.tema.aplicar(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---- Tooltip ---------------------------------------------------------- */
+  let dicaEl, dicaTimer, dicaAlvo;
+  function mostraDica(alvo, imediato) {
+    clearTimeout(dicaTimer);
+    dicaTimer = setTimeout(() => {
+      if (!dicaEl) { dicaEl = document.createElement('div'); dicaEl.className = 'dica'; dicaEl.setAttribute('role', 'tooltip'); dicaEl.id = 'b7-dica'; document.body.appendChild(dicaEl); }
+      dicaAlvo = alvo;
+      const kbd = alvo.dataset.dicaAtalho ? `<span class="kbd">${esc(alvo.dataset.dicaAtalho)}</span>` : '';
+      dicaEl.innerHTML = esc(alvo.dataset.dica) + kbd;
+      alvo.setAttribute('aria-describedby', 'b7-dica');
+      const r = alvo.getBoundingClientRect();
+      dicaEl.style.left = '0px'; dicaEl.style.top = '0px';
+      const d = dicaEl.getBoundingClientRect();
+      let lado = alvo.dataset.dicaLado || 'cima';
+      if (lado === 'cima' && r.top - d.height - 8 < 0) lado = 'baixo';
+      const top = lado === 'cima' ? r.top - d.height - 8 : r.bottom + 8;
+      const left = Math.min(Math.max(8, r.left + r.width / 2 - d.width / 2), innerWidth - d.width - 8);
+      dicaEl.dataset.lado = lado;
+      dicaEl.style.top = top + 'px'; dicaEl.style.left = left + 'px';
+      requestAnimationFrame(() => dicaEl.classList.add('is-visivel'));
+    }, imediato ? 0 : 350);
+  }
+  function escondeDica() {
+    clearTimeout(dicaTimer);
+    if (dicaEl) dicaEl.classList.remove('is-visivel');
+    if (dicaAlvo) dicaAlvo.removeAttribute('aria-describedby');
+    dicaAlvo = null;
+  }
+  document.addEventListener('mouseover', (e) => { const a = e.target.closest?.('[data-dica]'); if (a && a !== dicaAlvo) mostraDica(a); else if (!a && dicaAlvo) escondeDica(); });
+  document.addEventListener('focusin', (e) => { const a = e.target.closest?.('[data-dica]'); if (a && a.matches(':focus-visible')) mostraDica(a, true); });
+  document.addEventListener('focusout', escondeDica);
+  document.addEventListener('scroll', escondeDica, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') escondeDica(); });
+
+  /* ---- Menu dropdown ---------------------------------------------------- */
+  let menuAberto = null;
+  function abreMenu(gatilho) {
+    const menu = document.getElementById(gatilho.getAttribute('aria-controls'));
+    if (!menu) return;
+    if (menuAberto && menuAberto.menu !== menu) fechaMenu();
+    // Guarda a direção pedida no HTML e recalcula a cada abertura, para caber na tela
+    menu.dataset.base ??= [...menu.classList].filter((c) => c === 'menu--cima' || c === 'menu--dir').join(' ');
+    menu.classList.remove('menu--cima', 'menu--dir');
+    menu.style.translate = ''; menu.style.maxHeight = ''; menu.style.overflowY = '';
+    menu.classList.add('is-aberto');
+    gatilho.setAttribute('aria-expanded', 'true');
+    const g = gatilho.getBoundingClientRect();
+    const h = menu.offsetHeight, w = menu.offsetWidth;
+    const abaixo = innerHeight - g.bottom - 14, acima = g.top - 14;
+    const querCima = menu.dataset.base.includes('menu--cima');
+    const cima = querCima ? (acima >= h || acima > abaixo) : (abaixo < h && acima > abaixo);
+    if (cima) menu.classList.add('menu--cima');
+    const espaco = cima ? acima : abaixo;
+    if (h > espaco) { menu.style.maxHeight = `${Math.max(160, espaco)}px`; menu.style.overflowY = 'auto'; }
+    const querDir = menu.dataset.base.includes('menu--dir');
+    const dir = querDir ? g.right - w >= 8 : g.left + w > innerWidth - 8 && g.right - w >= 8;
+    if (dir) menu.classList.add('menu--dir');
+    const r = menu.getBoundingClientRect();
+    if (r.left < 8) menu.style.translate = `${8 - r.left}px 0`;
+    else if (r.right > innerWidth - 8) menu.style.translate = `${innerWidth - 8 - r.right}px 0`;
+    menuAberto = { menu, gatilho };
+    const primeiro = menu.querySelector('[aria-selected="true"]:not(:disabled)') || itensMenu(menu)[0];
+    primeiro && primeiro.focus();
+  }
+  function fechaMenu(devolveFoco) {
+    if (!menuAberto) return;
+    menuAberto.menu.classList.remove('is-aberto');
+    menuAberto.gatilho.setAttribute('aria-expanded', 'false');
+    if (devolveFoco) menuAberto.gatilho.focus();
+    menuAberto = null;
+  }
+  const itensMenu = (m) => $$('.menu__item:not(:disabled), .modelo:not(:disabled)', m);
+  B7.fechaMenu = fechaMenu;
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest?.('[aria-haspopup][aria-controls]');
+    if (g && !g.closest('[data-paleta-abrir]')) {
+      e.preventDefault();
+      g.getAttribute('aria-expanded') === 'true' ? fechaMenu() : abreMenu(g);
+      return;
+    }
+    if (menuAberto) {
+      const item = e.target.closest?.('.menu__item, .modelo');
+      if (item && menuAberto.menu.contains(item)) {
+        if (item.getAttribute('role') === 'menuitemcheckbox') { item.setAttribute('aria-checked', item.getAttribute('aria-checked') !== 'true'); return; }
+        if (item.getAttribute('role') === 'menuitemradio') $$('[role="menuitemradio"]', menuAberto.menu).forEach((i) => i.setAttribute('aria-checked', i === item));
+        if (item.dataset.toast) B7.toast(JSON.parse(item.dataset.toast));
+        fechaMenu(true);
+      } else if (!menuAberto.menu.contains(e.target)) fechaMenu();
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!menuAberto) return;
+    const itens = itensMenu(menuAberto.menu);
+    const i = itens.indexOf(document.activeElement);
+    if (e.key === 'Escape') { e.preventDefault(); fechaMenu(true); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); itens[(i + 1) % itens.length]?.focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); itens[(i - 1 + itens.length) % itens.length]?.focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); itens[0]?.focus(); }
+    else if (e.key === 'End') { e.preventDefault(); itens[itens.length - 1]?.focus(); }
+    else if (e.key === 'Tab') fechaMenu();
+  });
+
+  /* ---- Tabs ------------------------------------------------------------- */
+  function selecionaAba(aba, foco) {
+    const lista = aba.closest('[role="tablist"]');
+    $$('[role="tab"]', lista).forEach((a) => {
+      const sel = a === aba;
+      a.setAttribute('aria-selected', sel);
+      a.tabIndex = sel ? 0 : -1;
+      const p = document.getElementById(a.getAttribute('aria-controls'));
+      if (p) p.hidden = !sel;
+    });
+    if (foco) aba.focus();
+    lista.dispatchEvent(new CustomEvent('b7:aba', { detail: aba }));
+  }
+  document.addEventListener('click', (e) => { const a = e.target.closest?.('[role="tab"]'); if (a && !a.disabled) selecionaAba(a); });
+  document.addEventListener('keydown', (e) => {
+    const a = e.target.closest?.('[role="tab"]'); if (!a) return;
+    const abas = $$('[role="tab"]:not(:disabled)', a.closest('[role="tablist"]'));
+    const i = abas.indexOf(a);
+    const mapa = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: abas.length - 1 };
+    if (e.key in mapa) { e.preventDefault(); selecionaAba(abas[(mapa[e.key] + abas.length) % abas.length], true); }
+  });
+
+  /* ---- Modal, drawer e lightbox (dialog nativo) ------------------------- */
+  document.addEventListener('click', (e) => {
+    const abrir = e.target.closest?.('[data-abrir]');
+    if (abrir) { const d = document.getElementById(abrir.dataset.abrir); d && d.showModal(); return; }
+    const fechar = e.target.closest?.('[data-fechar]');
+    if (fechar) { const d = fechar.closest('dialog'); d && d.close(fechar.dataset.fechar || ''); if (fechar.dataset.toast) B7.toast(JSON.parse(fechar.dataset.toast)); return; }
+    if (e.target.tagName === 'DIALOG' && e.target.open) {
+      const r = e.target.getBoundingClientRect();
+      const fora = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      if (fora || e.target.classList.contains('lightbox')) e.target.close();
+    }
+  });
+
+  /* ---- Toast ------------------------------------------------------------ */
+  const icToast = { sucesso: 'check-circulo', erro: 'x-circulo', aviso: 'alerta', info: 'info' };
+  B7.toast = function ({ tipo = 'info', titulo = '', texto = '', acao, duracao = 5000 } = {}) {
+    let pilha = $('.toasts');
+    if (!pilha) { pilha = document.createElement('div'); pilha.className = 'toasts'; pilha.setAttribute('aria-live', 'polite'); document.body.appendChild(pilha); }
+    const t = document.createElement('div');
+    t.className = `toast toast--${tipo}`;
+    t.setAttribute('role', tipo === 'erro' ? 'alert' : 'status');
+    t.innerHTML = `${ic(icToast[tipo] || 'info')}<div class="toast__corpo">${titulo ? `<p class="toast__titulo">${esc(titulo)}</p>` : ''}${texto ? `<p class="toast__texto">${esc(texto)}</p>` : ''}</div>${acao ? `<button class="toast__acao" type="button">${esc(acao.rotulo)}</button>` : ''}<button class="toast__fechar" type="button" aria-label="Fechar aviso">${ic('fechar', 'ic--p')}</button>`;
+    const sai = () => { if (t.classList.contains('is-saindo')) return; t.classList.add('is-saindo'); t.addEventListener('animationend', () => t.remove(), { once: true }); };
+    t.querySelector('.toast__fechar').onclick = sai;
+    if (acao) t.querySelector('.toast__acao').onclick = () => { acao.fn && acao.fn(); sai(); };
+    let timer = setTimeout(sai, duracao);
+    t.addEventListener('mouseenter', () => clearTimeout(timer));
+    t.addEventListener('mouseleave', () => { timer = setTimeout(sai, 2000); });
+    pilha.appendChild(t);
+    while (pilha.children.length > 4) pilha.firstElementChild.remove();
+    return t;
+  };
+  document.addEventListener('click', (e) => { const b = e.target.closest?.('[data-toast]:not(.menu__item):not([data-fechar])'); if (b) B7.toast(JSON.parse(b.dataset.toast)); });
+
+  /* ---- Campos ----------------------------------------------------------- */
+  document.addEventListener('click', (e) => {
+    const s = e.target.closest?.('[data-senha]');
+    if (s) {
+      const inp = s.closest('.campo__caixa').querySelector('input');
+      const ver = inp.type === 'password';
+      inp.type = ver ? 'text' : 'password';
+      s.setAttribute('aria-label', ver ? 'Ocultar senha' : 'Mostrar senha');
+      s.dataset.dica = ver ? 'Ocultar senha' : 'Mostrar senha';
+      s.querySelector('use').setAttribute('href', ver ? '#i-olho-off' : '#i-olho');
+    }
+    const l = e.target.closest?.('[data-limpar]');
+    if (l) { const inp = l.closest('.campo__caixa').querySelector('input'); inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); inp.focus(); }
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.matches('[data-forca]')) {
+      const v = el.value; let n = 0;
+      if (v.length >= 8) n++; if (/[A-Z]/.test(v) && /[a-z]/.test(v)) n++; if (/\d/.test(v)) n++; if (/[^\w]/.test(v) && v.length >= 10) n++;
+      const f = document.getElementById(el.dataset.forca); if (f) f.dataset.nivel = v ? Math.max(1, n) : 0;
+      const t = document.getElementById(el.dataset.forca + '-texto'); if (t) t.textContent = !v ? 'Use 8 caracteres ou mais, com letras e números.' : ['Senha fraca', 'Senha fraca', 'Senha razoável', 'Senha boa', 'Senha forte'][n];
+    }
+    if (el.matches('[data-contador]')) atualizaContador(el);
+    if (el.matches('.faixa')) atualizaFaixa(el);
+    if (el.matches('.comparador__faixa')) el.closest('.comparador').style.setProperty('--pos', el.value + '%');
+    if (el.closest('.campo--busca')) { const b = el.closest('.campo__caixa').querySelector('[data-limpar]'); if (b) b.hidden = !el.value; }
+  });
+  function atualizaContador(el) {
+    const c = document.getElementById(el.dataset.contador); if (!c) return;
+    const max = +el.maxLength > 0 ? +el.maxLength : +el.dataset.max;
+    c.textContent = `${el.value.length.toLocaleString('pt-BR')} / ${max.toLocaleString('pt-BR')}`;
+    c.classList.toggle('is-limite', el.value.length >= max * 0.9);
+  }
+  function atualizaFaixa(el) {
+    const p = ((el.value - el.min) / (el.max - el.min)) * 100;
+    el.style.setProperty('--v', p + '%');
+    const out = document.getElementById(el.dataset.saida);
+    if (out) out.textContent = (el.dataset.prefixo || '') + el.value + (el.dataset.sufixo || '');
+  }
+
+  /* ---- Paginação -------------------------------------------------------- */
+  B7.paginacao = function (el, atual, total) {
+    const pags = [];
+    const add = (n) => pags.push(n);
+    if (total <= 7) for (let i = 1; i <= total; i++) add(i);
+    else {
+      add(1);
+      if (atual > 4) add('…');
+      for (let i = Math.max(2, atual - 1); i <= Math.min(total - 1, atual + 1); i++) add(i);
+      if (atual < total - 3) add('…');
+      add(total);
+    }
+    el.innerHTML = `<button class="paginacao__pag paginacao__nav" type="button" data-pag="${atual - 1}" ${atual === 1 ? 'disabled' : ''} aria-label="Página anterior">${ic('seta-esq', 'ic--p')}<span>Anterior</span></button>` +
+      pags.map((p) => p === '…' ? '<span class="paginacao__reticencias" aria-hidden="true">…</span>' :
+        `<button class="paginacao__pag paginacao__num" type="button" data-pag="${p}" ${p === atual ? 'aria-current="page"' : ''} aria-label="Página ${p}">${p}</button>`).join('') +
+      `<span class="paginacao__resumo">${atual} de ${total}</span>` +
+      `<button class="paginacao__pag paginacao__nav" type="button" data-pag="${atual + 1}" ${atual === total ? 'disabled' : ''} aria-label="Próxima página"><span>Próxima</span>${ic('seta-dir', 'ic--p')}</button>`;
+    el.onclick = (e) => { const b = e.target.closest?.('[data-pag]'); if (b && !b.disabled) { B7.paginacao(el, +b.dataset.pag, total); el.querySelector(`[data-pag="${b.dataset.pag}"][aria-current]`)?.focus(); } };
+  };
+
+  /* ---- Realce de sintaxe (leve, sem dependência) ------------------------ */
+  const KW = {
+    js: 'const|let|var|function|return|if|else|for|while|await|async|import|from|export|default|new|class|extends|try|catch|throw|of|in|typeof|null|undefined|true|false|this',
+    py: 'def|return|if|elif|else|for|while|in|import|from|as|class|try|except|raise|with|lambda|None|True|False|and|or|not|await|async|self|print',
+    json: 'true|false|null',
+    bash: 'cd|ls|export|echo|npm|npx|python3|curl|if|then|fi|for|do|done',
+    rb: 'def|end|do|each|each_with_index|if|else|elsif|unless|return|puts|require|class|module|nil|true|false|then',
+    css: '',
+  };
+  B7.realcar = function (src, lang) {
+    const l = { javascript: 'js', typescript: 'js', ts: 'js', python: 'py', ruby: 'rb', sh: 'bash', shell: 'bash' }[lang] || lang;
+    if (l === 'texto') return src.split('\n').map((linha) => `<span class="ln">${esc(linha) || ' '}</span>`).join('');
+    const kw = KW[l] || KW.js;
+    const regras = [
+      ['c', l === 'py' || l === 'bash' || l === 'rb' ? /#.*$/m : l === 'css' ? /\/\*[\s\S]*?\*\// : /\/\/.*$|\/\*[\s\S]*?\*\//m],
+      ['p', l === 'json' ? /"(?:[^"\\]|\\.)*"(?=\s*:)/ : l === 'css' ? /[\w-]+(?=\s*:)/ : null],
+      ['s', /`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/],
+      ['k', kw ? new RegExp(`\\b(?:${kw})\\b`) : null],
+      ['n', /\b\d+(?:[.,]\d+)?(?:px|ms|s|%)?\b/],
+      ['f', /\b[A-Za-z_]\w*(?=\s*\()/],
+      ['o', /[{}()[\];,.:=<>+\-*/!?&|]+/],
+    ].filter((r) => r[1]);
+    const grande = new RegExp(regras.map((r) => `(${r[1].source})`).join('|'), 'gm');
+    let out = '', ult = 0, m;
+    while ((m = grande.exec(src))) {
+      if (m[0] === '') { grande.lastIndex++; continue; }
+      out += esc(src.slice(ult, m.index));
+      const gi = m.slice(1).findIndex((x) => x !== undefined);
+      out += `<span class="tk-${regras[gi][0]}">${esc(m[0])}</span>`;
+      ult = grande.lastIndex;
+    }
+    out += esc(src.slice(ult));
+    return out.split('\n').map((linha) => `<span class="ln">${linha || ' '}</span>`).join('');
+  };
+  B7.codigo = function (el) {
+    const code = el.querySelector('code');
+    const bruto = code.dataset.fonte ?? code.textContent.replace(/^\n/, '').replace(/\s+$/, '');
+    code.dataset.fonte = bruto;
+    code.innerHTML = B7.realcar(bruto, el.dataset.lang || 'js');
+    const destaque = (el.dataset.destaque || '').split(',').map(Number);
+    $$('.ln', code).forEach((l, i) => destaque.includes(i + 1) && l.classList.add('ln--destaque'));
+  };
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest?.('[data-copiar]');
+    if (b) {
+      const alvo = b.dataset.copiar ? document.getElementById(b.dataset.copiar) : null;
+      const cod = b.closest('.codigo')?.querySelector('code');
+      const txt = alvo ? alvo.innerText : cod ? cod.dataset.fonte : (b.closest('.msg')?.querySelector('.prosa, .msg__bolha')?.innerText || '');
+      try { await navigator.clipboard.writeText(txt); } catch (err) {}
+      const u = b.querySelector('use'); const rot = b.querySelector('.rotulo');
+      u && u.setAttribute('href', '#i-check');
+      if (rot) rot.textContent = 'Copiado';
+      b.dataset.dica && (b.dataset.dicaOriginal = b.dataset.dica, b.dataset.dica = 'Copiado');
+      setTimeout(() => { u && u.setAttribute('href', '#i-copiar'); if (rot) rot.textContent = 'Copiar'; if (b.dataset.dicaOriginal) b.dataset.dica = b.dataset.dicaOriginal; }, 1600);
+    }
+    const q = e.target.closest?.('[data-quebra]');
+    if (q) { const c = q.closest('.codigo'); c.classList.toggle('is-quebra'); q.setAttribute('aria-pressed', c.classList.contains('is-quebra')); }
+  });
+
+  /* ---- Cronômetro (indicador de geração) -------------------------------- */
+  B7.cronometro = function (el) {
+    const ini = performance.now() - (+el.dataset.inicio || 0) * 1000;
+    const tick = () => { if (!el.isConnected || el.dataset.parado) return; el.textContent = fmtTempo((performance.now() - ini) / 1000); requestAnimationFrame(tick); };
+    tick();
+  };
+
+  /* ---- Autosize --------------------------------------------------------- */
+  const autosize = (ta) => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 240) + 'px'; };
+
+  /* ---- Seletor de modelo ------------------------------------------------ */
+  B7.MODELOS = [
+    { id: 'agil', nome: 'Ágil', icone: 'raio', desc: 'Respostas curtas, revisão de texto e ideias rápidas.', vel: 5, cap: 2, custo: 1 },
+    { id: 'equilibrio', nome: 'Equilíbrio', icone: 'brilho', desc: 'Padrão para prompts, briefings e análise de projeto.', vel: 4, cap: 4, custo: 2, badge: ['Recomendado', 'info'] },
+    { id: 'profundo', nome: 'Profundo', icone: 'cerebro', desc: 'Raciocínio longo: memoriais, orçamentos e normas técnicas.', vel: 2, cap: 5, custo: 6, badge: ['Pro', 'solido'] },
+    { id: 'foto', nome: 'Render Foto', icone: 'imagem', desc: 'Imagem fotorrealista a partir do print do modelo 3D.', vel: 3, cap: 5, custo: 8 },
+    { id: 'video', nome: 'Render Vídeo', icone: 'video', desc: 'Anima um render em clipes de 5 a 10 segundos.', vel: 1, cap: 4, custo: 30, badge: ['Novo', 'novo'], bloqueado: 'Disponível no plano Estúdio' },
+  ];
+  const nivel = (n) => `<span class="nivel" data-n="${n}" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>`;
+  B7.htmlModelo = (m, sel) => `
+    <button class="modelo" type="button" role="option" aria-selected="${sel}" data-modelo="${m.id}" ${m.bloqueado ? 'disabled' : ''}>
+      <span class="modelo__icone modelo__icone--${m.id}">${ic(m.icone)}</span>
+      <span class="modelo__topo"><span class="modelo__nome">${m.nome}</span>${m.badge ? `<span class="badge badge--p badge--${m.badge[1]}">${m.badge[0]}</span>` : ''}</span>
+      <span class="modelo__custo">${m.bloqueado ? ic('cadeado', 'ic--p') : `${m.custo} cr`}</span>
+      <span class="modelo__desc">${m.bloqueado ? m.bloqueado : m.desc}</span>
+      <span class="modelo__medidas">
+        <span class="medida">Velocidade ${nivel(m.vel)}<span class="sr">${m.vel} de 5</span></span>
+        <span class="medida">Capacidade ${nivel(m.cap)}<span class="sr">${m.cap} de 5</span></span>
+      </span>
+    </button>`;
+  B7.seletorModelo = function (raiz) {
+    const lista = raiz.querySelector('.modelos');
+    const gat = raiz.querySelector('.modelo-gatilho');
+    let atual = raiz.dataset.modelo || 'equilibrio';
+    const render = () => {
+      lista.innerHTML = B7.MODELOS.map((m) => B7.htmlModelo(m, m.id === atual)).join('') +
+        `<div class="modelos__rodape">${ic('info', 'ic--p')}<span>Custo por mensagem, em créditos.</span></div>`;
+      const m = B7.MODELOS.find((x) => x.id === atual);
+      gat.innerHTML = `<span class="modelo__icone modelo__icone--${m.id}">${ic(m.icone)}</span><span class="rotulo-longo">${m.nome}</span>${ic('seta-baixo', 'ic--p')}`;
+      gat.setAttribute('aria-label', `Modelo: ${m.nome}. Trocar modelo`);
+    };
+    lista.addEventListener('click', (e) => {
+      const b = e.target.closest?.('[data-modelo]'); if (!b || b.disabled) return;
+      atual = b.dataset.modelo; raiz.dataset.modelo = atual;
+      setTimeout(render); // depois do handler global fechar o menu e devolver o foco
+      raiz.dispatchEvent(new CustomEvent('b7:modelo', { detail: B7.MODELOS.find((x) => x.id === atual), bubbles: true }));
+    });
+    render();
+    return { get: () => B7.MODELOS.find((x) => x.id === atual) };
+  };
+
+  /* ---- Campo de prompt -------------------------------------------------- */
+  B7.prompt = function (el, { aoEnviar, aoParar } = {}) {
+    const ta = el.querySelector('.prompt__texto');
+    const enviar = el.querySelector('.prompt__enviar');
+    const anexos = el.querySelector('.prompt__anexos');
+    const arquivo = el.querySelector('input[type="file"]');
+    const contador = el.querySelector('.prompt__contador');
+    const max = +ta.maxLength > 0 ? +ta.maxLength : 4000;
+    const seletor = el.querySelector('[data-seletor-modelo]');
+    const modelo = seletor ? B7.seletorModelo(seletor) : null;
+    let gerando = false;
+
+    const estado = () => {
+      const tem = ta.value.trim().length > 0 || anexos.children.length > 0;
+      enviar.disabled = !gerando && !tem;
+      enviar.setAttribute('aria-label', gerando ? 'Interromper geração' : 'Enviar mensagem');
+      enviar.dataset.dica = gerando ? 'Interromper' : 'Enviar';
+      enviar.dataset.dicaAtalho = gerando ? 'Esc' : '↵';
+      if (contador) {
+        const n = ta.value.length;
+        contador.hidden = n < max * 0.75;
+        contador.textContent = `${n.toLocaleString('pt-BR')} / ${max.toLocaleString('pt-BR')}`;
+        contador.classList.toggle('is-limite', n >= max * 0.95);
+      }
+    };
+    const api = {
+      set gerando(v) { gerando = v; el.classList.toggle('is-gerando', v); estado(); },
+      get gerando() { return gerando; },
+      preencher(t) { ta.value = t; autosize(ta); estado(); ta.focus(); ta.setSelectionRange(t.length, t.length); },
+      modelo,
+    };
+    const submete = () => {
+      if (gerando) { aoParar && aoParar(); return; }
+      const texto = ta.value.trim();
+      if (!texto && !anexos.children.length) return;
+      const imgs = $$('.anexo img', anexos).map((i) => i.src);
+      aoEnviar && aoEnviar({ texto, imagens: imgs, modelo: modelo && modelo.get() });
+      ta.value = ''; anexos.innerHTML = ''; autosize(ta); estado();
+    };
+    ta.addEventListener('input', () => { autosize(ta); estado(); });
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); submete(); }
+      if (e.key === 'Escape' && gerando) { e.preventDefault(); aoParar && aoParar(); }
+    });
+    enviar.addEventListener('click', submete);
+    el.addEventListener('click', (e) => { if (e.target === el || e.target.classList.contains('prompt__barra')) ta.focus(); });
+
+    const adiciona = (files) => {
+      [...files].slice(0, 6).forEach((f) => {
+        const ehImg = f.type.startsWith('image/');
+        const grande = f.size > 20 * 1048576;
+        const a = document.createElement('div');
+        a.className = 'anexo' + (grande ? ' is-erro' : '');
+        const mini = ehImg && !grande ? `<img class="anexo__miniatura" src="${URL.createObjectURL(f)}" alt="">` : `<span class="anexo__miniatura ${/pdf/.test(f.type) ? 'anexo__miniatura--pdf' : ''}">${ic(ehImg ? 'imagem' : 'arquivo-texto', 'ic--p')}</span>`;
+        a.innerHTML = `${mini}<span class="anexo__info"><span class="anexo__nome" title="${esc(f.name)}">${esc(f.name)}</span><span class="anexo__meta">${grande ? 'Acima de 20 MB' : 'Enviando…'}</span></span><button class="anexo__remover" type="button" aria-label="Remover ${esc(f.name)}">${ic('fechar')}</button>${grande ? '' : '<span class="progresso" style="--v:0%"></span>'}`;
+        a.querySelector('.anexo__remover').onclick = () => { a.remove(); estado(); ta.focus(); };
+        anexos.appendChild(a);
+        if (!grande) {
+          let p = 0; const bar = a.querySelector('.progresso');
+          const t = setInterval(() => { p += 12 + Math.random() * 20; bar.style.setProperty('--v', Math.min(p, 100) + '%'); if (p >= 100) { clearInterval(t); bar.remove(); a.querySelector('.anexo__meta').textContent = fmtBytes(f.size); } }, 160);
+        }
+      });
+      estado();
+    };
+    api.anexarDemo = (nome, src, meta) => {
+      const a = document.createElement('div'); a.className = 'anexo';
+      a.innerHTML = `<img class="anexo__miniatura" src="${src}" alt=""><span class="anexo__info"><span class="anexo__nome">${esc(nome)}</span><span class="anexo__meta">${esc(meta)}</span></span><button class="anexo__remover" type="button" aria-label="Remover ${esc(nome)}">${ic('fechar')}</button>`;
+      a.querySelector('.anexo__remover').onclick = () => { a.remove(); estado(); };
+      anexos.appendChild(a); estado();
+    };
+    arquivo && arquivo.addEventListener('change', () => { adiciona(arquivo.files); arquivo.value = ''; });
+    el.querySelector('[data-anexar]')?.addEventListener('click', () => arquivo && arquivo.click());
+    let prof = 0;
+    el.addEventListener('dragenter', (e) => { if (e.dataTransfer.types.includes('Files')) { prof++; el.classList.add('is-arrastando'); } });
+    el.addEventListener('dragleave', () => { if (--prof <= 0) { prof = 0; el.classList.remove('is-arrastando'); } });
+    el.addEventListener('dragover', (e) => e.preventDefault());
+    el.addEventListener('drop', (e) => { e.preventDefault(); prof = 0; el.classList.remove('is-arrastando'); adiciona(e.dataTransfer.files); });
+    ta.addEventListener('paste', (e) => { const fs = [...(e.clipboardData?.files || [])]; if (fs.length) adiciona(fs); });
+    autosize(ta); estado();
+    return api;
+  };
+
+  /* ---- Mensagens -------------------------------------------------------- */
+  B7.msgUsuario = function (texto, imagens = []) {
+    const m = document.createElement('div');
+    m.className = 'msg msg--usuario';
+    m.innerHTML = `${imagens.length ? `<div class="msg__anexos">${imagens.map((s) => `<img src="${s}" alt="Imagem anexada">`).join('')}</div>` : ''}
+      <div class="msg__bolha">${esc(texto)}</div>
+      <div class="msg__acoes">
+        <button class="btn btn--discreto btn--p btn--icone" type="button" data-copiar aria-label="Copiar mensagem" data-dica="Copiar">${ic('copiar')}</button>
+        <button class="btn btn--discreto btn--p btn--icone" type="button" data-editar aria-label="Editar mensagem" data-dica="Editar">${ic('editar')}</button>
+      </div>`;
+    return m;
+  };
+  B7.msgIA = function ({ modelo = 'Equilíbrio', html = '', versao } = {}) {
+    const m = document.createElement('div');
+    m.className = 'msg msg--ia';
+    m.innerHTML = `<div class="msg__autor"><span class="msg__marca" aria-hidden="true">${ic('brilho')}</span></div>
+      <div class="msg__principal">
+        <div class="msg__cab">Assistente 9barra7 <span class="suave">· ${esc(modelo)}</span></div>
+        <div class="prosa">${html}</div>
+        <div class="msg__acoes" hidden>
+          ${versao ? `<span class="msg__versao">${versao}</span>` : ''}
+          <button class="btn btn--discreto btn--p btn--icone" type="button" data-copiar aria-label="Copiar resposta" data-dica="Copiar">${ic('copiar')}</button>
+          <button class="btn btn--discreto btn--p btn--icone" type="button" data-avaliar="bom" aria-pressed="false" aria-label="Boa resposta" data-dica="Boa resposta">${ic('polegar-cima')}</button>
+          <button class="btn btn--discreto btn--p btn--icone" type="button" data-avaliar="ruim" aria-pressed="false" aria-label="Resposta ruim" data-dica="Resposta ruim">${ic('polegar-baixo')}</button>
+          <button class="btn btn--discreto btn--p btn--icone" type="button" data-refazer aria-label="Gerar novamente" data-dica="Gerar novamente">${ic('refazer')}</button>
+        </div>
+      </div>`;
+    return m;
+  };
+  // Avaliar, editar
+  document.addEventListener('click', (e) => {
+    const av = e.target.closest?.('[data-avaliar]');
+    if (av) {
+      const ligado = av.getAttribute('aria-pressed') !== 'true';
+      $$('[data-avaliar]', av.parentElement).forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      av.setAttribute('aria-pressed', ligado);
+      if (ligado) B7.toast({ tipo: 'sucesso', titulo: 'Obrigado pela avaliação', texto: av.dataset.avaliar === 'bom' ? 'Isso ajuda a ajustar as próximas respostas.' : 'Conte o que faltou para melhorarmos.', duracao: 3000 });
+    }
+    const ed = e.target.closest?.('[data-editar]');
+    if (ed) {
+      const msg = ed.closest('.msg'); const bolha = msg.querySelector('.msg__bolha');
+      const orig = bolha.textContent;
+      const caixa = document.createElement('div'); caixa.className = 'msg__editar';
+      caixa.innerHTML = `<label class="sr" for="ed-${Date.now()}">Editar mensagem</label><textarea id="ed-${Date.now()}">${esc(orig)}</textarea><div class="grupo-btn"><button class="btn btn--discreto btn--p" type="button" data-x>Cancelar</button><button class="btn btn--p" type="button" data-ok>Enviar</button></div>`;
+      bolha.hidden = true; msg.querySelector('.msg__acoes').hidden = true; bolha.after(caixa);
+      const ta = caixa.querySelector('textarea'); ta.focus(); ta.setSelectionRange(orig.length, orig.length);
+      const fecha = (novo) => { if (novo != null) bolha.textContent = novo; caixa.remove(); bolha.hidden = false; msg.querySelector('.msg__acoes').hidden = false; };
+      caixa.querySelector('[data-x]').onclick = () => fecha(null);
+      caixa.querySelector('[data-ok]').onclick = () => { const v = ta.value.trim(); fecha(v || orig); if (v && v !== orig) msg.dispatchEvent(new CustomEvent('b7:editada', { detail: v, bubbles: true })); };
+      ta.addEventListener('keydown', (k) => { if (k.key === 'Escape') fecha(null); if (k.key === 'Enter' && !k.shiftKey) { k.preventDefault(); caixa.querySelector('[data-ok]').click(); } });
+    }
+  });
+
+  // Digitação simulada: revela HTML palavra a palavra, preservando tags.
+  B7.digitar = async function (alvo, html, { sinal, vel = 14 } = {}) {
+    const tmp = document.createElement('div'); tmp.innerHTML = html;
+    alvo.innerHTML = ''; alvo.classList.add('cursor-digitando');
+    async function copia(origem, destino) {
+      for (const no of [...origem.childNodes]) {
+        if (sinal?.parado) return;
+        if (no.nodeType === 3) {
+          const t = document.createTextNode(''); destino.appendChild(t);
+          const partes = no.textContent.split(/(\s+)/);
+          for (const p of partes) { if (sinal?.parado) return; t.textContent += p; if (p.trim()) await espera(vel + Math.random() * vel); }
+        } else {
+          const c = no.cloneNode(false); destino.appendChild(c);
+          if (no.matches?.('.codigo, .fontes, .imagem-grade')) { c.replaceWith(no.cloneNode(true)); await espera(120); continue; }
+          await copia(no, c);
+        }
+      }
+    }
+    await copia(tmp, alvo);
+    alvo.classList.remove('cursor-digitando');
+    $$('.codigo', alvo).forEach(B7.codigo);
+  };
+
+  B7.indicador = function ({ texto = 'Pensando', brilho = true } = {}) {
+    const g = document.createElement('div');
+    g.className = 'gerando'; g.setAttribute('role', 'status');
+    g.innerHTML = `<span class="gerando__pontos" aria-hidden="true"><i></i><i></i><i></i></span><span class="gerando__texto ${brilho ? 'gerando__texto--brilho' : ''}">${esc(texto)}</span><span class="gerando__tempo" data-cronometro>0:00</span>`;
+    B7.cronometro(g.querySelector('[data-cronometro]'));
+    return g;
+  };
+
+  /* ---- Imagem gerada ---------------------------------------------------- */
+  document.addEventListener('click', (e) => {
+    const amp = e.target.closest?.('[data-ampliar]');
+    if (amp) {
+      const card = amp.closest('.imagem'); const img = card.querySelector('.imagem__quadro img');
+      let lb = $('#b7-lightbox');
+      if (!lb) { lb = document.createElement('dialog'); lb.id = 'b7-lightbox'; lb.className = 'lightbox'; lb.setAttribute('aria-label', 'Imagem ampliada'); document.body.appendChild(lb); }
+      lb.innerHTML = `<img src="${img.src}" alt="${esc(img.alt)}"><div class="lightbox__barra"><button class="btn btn--vidro btn--icone" type="button" data-fechar aria-label="Fechar">${ic('fechar')}</button></div><p class="lightbox__legenda">${esc(card.querySelector('.imagem__prompt')?.textContent || '')}</p>`;
+      lb.showModal();
+    }
+    const pr = e.target.closest?.('.imagem__prompt');
+    if (pr) pr.classList.toggle('is-aberto');
+    const va = e.target.closest?.('[data-variacao]');
+    if (va) B7.variacao(va.closest('.imagem'));
+    const tn = e.target.closest?.('[data-tentar]');
+    if (tn && tn.closest('.imagem')) B7.variacao(tn.closest('.imagem'));
+  });
+  const RENDERS = ['criar-render-1-depois', 'criar-print-2-depois', 'criar-ajuste-3-depois', 'criar-planta-depois', 'criar-print-1-depois', 'criar-render-2-depois'];
+  B7.variacao = async function (card, base = card.dataset.base || '') {
+    const q = card.querySelector('.imagem__quadro');
+    const alt = q.querySelector('img')?.alt || 'Imagem gerada';
+    const vinhaDeErro = card.classList.contains('is-erro');
+    card.classList.remove('is-erro'); card.classList.add('is-gerando'); card.setAttribute('aria-busy', 'true');
+    q.innerHTML = `<span class="badge imagem__proporcao">${q.dataset.proporcao || '1:1'}</span><div class="imagem__estado">${ic('brilho')}<span>Criando variação… <span class="t-num" data-pct>0%</span></span><span class="progresso" style="--v:0%"></span></div>`;
+    for (let p = 0; p <= 100; p += 4 + Math.random() * 6) { q.querySelector('.progresso').style.setProperty('--v', p + '%'); q.querySelector('[data-pct]').textContent = Math.round(p) + '%'; await espera(90); }
+    const prox = RENDERS[(RENDERS.indexOf(q.dataset.img) + 1) % RENDERS.length] || RENDERS[0];
+    q.dataset.img = prox;
+    const src = `${base}assets/img/${prox}.jpg`;
+    q.innerHTML = `<img src="${src}" alt="${esc(alt)}"><span class="badge imagem__proporcao">${q.dataset.proporcao || '1:1'}</span>
+      <div class="imagem__acoes">
+        <button class="btn btn--vidro btn--p btn--icone" type="button" data-ampliar aria-label="Ampliar" data-dica="Ampliar">${ic('ampliar')}</button>
+        <a class="btn btn--vidro btn--p btn--icone" href="${src}" download aria-label="Baixar" data-dica="Baixar">${ic('download')}</a>
+        <button class="btn btn--vidro btn--p" type="button" data-variacao>${ic('brilho')}Variação</button>
+      </div>`;
+    if (vinhaDeErro) card.querySelector('.imagem__meta').innerHTML = '<span>Render Foto</span><span class="ponto-sep"></span><span>agora</span>';
+    card.classList.remove('is-gerando'); card.removeAttribute('aria-busy');
+    B7.toast({ tipo: 'sucesso', titulo: 'Variação criada', texto: 'Mesma composição, nova luz e materiais.', duracao: 3000 });
+  };
+
+  /* ---- Upload ----------------------------------------------------------- */
+  B7.upload = function (raiz, { maxMB = 25, tipos = ['image/', 'application/pdf', '.skp', '.dwg'] } = {}) {
+    const zona = raiz.querySelector('.upload__zona');
+    const input = zona.querySelector('input');
+    const lista = raiz.querySelector('.arquivos');
+    const aceita = (f) => tipos.some((t) => t.startsWith('.') ? f.name.toLowerCase().endsWith(t) : f.type.startsWith(t));
+    const icone = (f) => /pdf/.test(f.type) ? ['arquivo-texto', 'anexo__miniatura--pdf'] : f.type.startsWith('image/') ? ['imagem', ''] : ['cubo', 'anexo__miniatura--skp'];
+    function item(f) {
+      const li = document.createElement('li'); li.className = 'arquivo';
+      const [n, cls] = icone(f);
+      const ponto = f.name.lastIndexOf('.');
+      const nome = ponto > 0 ? [f.name.slice(0, ponto), f.name.slice(ponto)] : [f.name, ''];
+      li.innerHTML = `<span class="anexo__miniatura ${cls}">${ic(n, 'ic--p')}</span><span class="arquivo__nome" title="${esc(f.name)}"><span>${esc(nome[0])}</span><span>${esc(nome[1])}</span></span><span class="arquivo__meta"></span><span class="arquivo__acoes"></span>`;
+      lista.appendChild(li);
+      envia(li, f);
+    }
+    function envia(li, f) {
+      const meta = li.querySelector('.arquivo__meta'); const acoes = li.querySelector('.arquivo__acoes');
+      li.className = 'arquivo';
+      const remover = `<button class="btn btn--discreto btn--p btn--icone" type="button" data-remover aria-label="Remover ${esc(f.name)}" data-dica="Remover">${ic('lixeira')}</button>`;
+      let erro = !aceita(f) ? 'Formato não suportado. Envie JPG, PNG, PDF, SKP ou DWG.' : f.size > maxMB * 1048576 ? `Arquivo com ${fmtBytes(f.size)}. O limite é ${maxMB} MB.` : null;
+      if (erro) {
+        li.classList.add('is-erro');
+        meta.innerHTML = `${ic('alerta-circulo', 'ic--p')}<span>${erro}</span>`;
+        acoes.innerHTML = remover; return;
+      }
+      const falhaSimulada = f.falhar;
+      meta.innerHTML = `<span class="progresso" style="--v:0%"></span><span data-pct>0%</span>`;
+      acoes.innerHTML = `<button class="btn btn--discreto btn--p btn--icone" type="button" data-remover aria-label="Cancelar envio" data-dica="Cancelar">${ic('fechar')}</button>`;
+      let p = 0;
+      const t = setInterval(() => {
+        if (!li.isConnected) return clearInterval(t);
+        p += 6 + Math.random() * 14;
+        if (falhaSimulada && p > 58) {
+          clearInterval(t); f.falhar = false;
+          li.classList.add('is-erro');
+          meta.innerHTML = `${ic('alerta-circulo', 'ic--p')}<span>Conexão interrompida em 62%.</span>`;
+          acoes.innerHTML = `<button class="btn btn--discreto btn--p" type="button" data-reenviar>${ic('refazer')}Tentar de novo</button>` + remover;
+          acoes.querySelector('[data-reenviar]').onclick = () => envia(li, f);
+          return;
+        }
+        if (p >= 100) {
+          clearInterval(t); li.classList.add('is-concluido');
+          meta.innerHTML = `${ic('check-circulo', 'ic--p')}<span>${fmtBytes(f.size)} · Enviado</span>`;
+          acoes.innerHTML = remover; return;
+        }
+        meta.querySelector('.progresso').style.setProperty('--v', p + '%');
+        meta.querySelector('[data-pct]').textContent = `${Math.round(p)}% · ${fmtBytes(f.size * p / 100)} de ${fmtBytes(f.size)}`;
+      }, 180);
+    }
+    lista.addEventListener('click', (e) => { const r = e.target.closest?.('[data-remover]'); if (r) r.closest('.arquivo').remove(); });
+    input.addEventListener('change', () => { [...input.files].forEach(item); input.value = ''; });
+    ['dragenter', 'dragover'].forEach((ev) => zona.addEventListener(ev, (e) => { e.preventDefault(); zona.classList.add('is-arrastando'); }));
+    ['dragleave', 'drop'].forEach((ev) => zona.addEventListener(ev, () => zona.classList.remove('is-arrastando')));
+    zona.addEventListener('drop', (e) => { e.preventDefault(); [...e.dataTransfer.files].forEach(item); });
+    return { adicionar: item };
+  };
+
+  /* ---- Seletor de ferramentas ------------------------------------------ */
+  B7.ferramentas = function (raiz) {
+    const cont = raiz.querySelector('[data-ativas]');
+    const upd = () => { const t = $$('input[type="checkbox"]:not(:disabled)', raiz); cont.textContent = `${t.filter((x) => x.checked).length} de ${t.length} ativas`; };
+    raiz.addEventListener('change', upd); upd();
+  };
+
+  /* ---- Etapas de execução ---------------------------------------------- */
+  const icEtapa = { aguardando: '', executando: '<svg class="ic ic--gira" aria-hidden="true"><use href="#i-carregando"/></svg>', concluida: ic('check'), falhou: ic('fechar') };
+  const rotEtapa = { aguardando: 'Aguardando', executando: 'Executando', concluida: 'Concluída', falhou: 'Falhou' };
+  B7.estadoEtapa = function (li, estado, tempo) {
+    li.className = `etapa is-${estado}`;
+    li.querySelector('.etapa__icone').innerHTML = icEtapa[estado] + `<span class="sr">${rotEtapa[estado]}</span>`;
+    const t = li.querySelector('.etapa__tempo');
+    if (t && tempo != null) t.textContent = tempo;
+  };
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest?.('.etapa__topo[aria-controls]');
+    if (t) { const d = document.getElementById(t.getAttribute('aria-controls')); const ab = t.getAttribute('aria-expanded') !== 'true'; t.setAttribute('aria-expanded', ab); d.hidden = !ab; }
+  });
+  B7.executar = async function (lista, { falhaNa = -1 } = {}) {
+    const itens = $$('.etapa', lista);
+    itens.forEach((li) => B7.estadoEtapa(li, 'aguardando', '—'));
+    for (let i = 0; i < itens.length; i++) {
+      const li = itens[i];
+      B7.estadoEtapa(li, 'executando', '0,0 s');
+      const tempo = li.querySelector('.etapa__tempo');
+      const ini = performance.now(); const dur = 900 + Math.random() * 1400;
+      while (performance.now() - ini < dur) { tempo.textContent = ((performance.now() - ini) / 1000).toFixed(1).replace('.', ',') + ' s'; await espera(80); }
+      if (i === falhaNa) {
+        B7.estadoEtapa(li, 'falhou');
+        const bt = li.querySelector('.etapa__topo'); if (bt && bt.getAttribute('aria-expanded') !== 'true') bt.click();
+        return false;
+      }
+      B7.estadoEtapa(li, 'concluida');
+    }
+    return true;
+  };
+
+  /* ---- Aprovação -------------------------------------------------------- */
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[data-aprovacao]');
+    if (!b) return;
+    const card = b.closest('.aprovacao');
+    const ok = b.dataset.aprovacao === 'aprovar';
+    card.classList.add(ok ? 'is-aprovada' : 'is-cancelada');
+    card.querySelector('.aprovacao__rodape').hidden = true;
+    const res = document.createElement('div'); res.className = 'aprovacao__resultado'; res.setAttribute('role', 'status');
+    const sempre = card.querySelector('.aprovacao__rodape .caixa')?.checked;
+    res.innerHTML = ok ? `${ic('check-circulo', 'ic--p')}<span>Aprovado por você às ${agora()}${sempre ? ' · Próximos envios não pedirão aprovação' : ''}. O agente continuou a tarefa.</span>`
+      : `${ic('x-circulo', 'ic--p')}<span>Cancelado às ${agora()}. Nada foi enviado.</span><button class="btn btn--discreto btn--p empurra" type="button" data-desfazer>Desfazer</button>`;
+    card.appendChild(res);
+    card.querySelector('.aprovacao__icone use').setAttribute('href', ok ? '#i-check' : '#i-fechar');
+    res.querySelector('[data-desfazer]')?.addEventListener('click', () => {
+      res.remove(); card.classList.remove('is-cancelada'); card.querySelector('.aprovacao__rodape').hidden = false; card.querySelector('.aprovacao__icone use').setAttribute('href', '#i-escudo');
+    });
+  });
+
+  /* ---- Créditos --------------------------------------------------------- */
+  B7.creditos = function (el, { limite = 2000, texto = 0, imagem = 0, video = 0, renova = '1º de outubro' } = {}) {
+    const usado = texto + imagem + video;
+    const saldo = Math.max(0, limite - usado);
+    const pct = usado / limite;
+    el.classList.toggle('is-alerta', pct >= 0.8 && pct < 1);
+    el.classList.toggle('is-esgotado', pct >= 1);
+    const f = (n) => n.toLocaleString('pt-BR');
+    el.querySelector('[data-saldo]').innerHTML = `${f(saldo)}<small>de ${f(limite)}</small>`;
+    const barra = el.querySelector('.creditos__barra');
+    const w = (n) => `${Math.min(100, (n / limite) * 100)}%`;
+    barra.innerHTML = `<i style="width:${w(texto)}"></i><i style="width:${w(imagem)}"></i><i style="width:${w(video)}"></i>`;
+    barra.setAttribute('aria-valuenow', Math.round(pct * 100));
+    barra.setAttribute('aria-valuetext', `${Math.round(pct * 100)}% usados, ${f(saldo)} créditos restantes`);
+    el.querySelector('[data-leg]').innerHTML = `<span><i style="background:var(--texto)"></i>Texto ${f(texto)}</span><span><i style="background:var(--acento)"></i>Imagens ${f(imagem)}</span><span><i style="background:var(--cat-prompthub)"></i>Vídeo ${f(video)}</span>`;
+    const st = el.querySelector('[data-status]');
+    st.className = 'badge ' + (pct >= 1 ? 'badge--erro' : pct >= 0.8 ? 'badge--aviso' : 'badge--sucesso');
+    st.innerHTML = `<span class="badge__ponto"></span>${pct >= 1 ? 'Limite atingido' : pct >= 0.8 ? `${Math.round(pct * 100)}% usado` : 'Dentro do plano'}`;
+    el.querySelector('[data-renova]').textContent = `Renova em ${renova}`;
+  };
+
+  /* ---- Command palette -------------------------------------------------- */
+  B7.paleta = function (dlg, grupos) {
+    const input = dlg.querySelector('input');
+    const lista = dlg.querySelector('.paleta__lista');
+    let ativo = 0, visiveis = [];
+    const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const marca = (t, q) => { if (!q) return esc(t); const i = norm(t).indexOf(norm(q)); return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length)); };
+    function render() {
+      const q = input.value.trim();
+      visiveis = [];
+      let html = '';
+      grupos.forEach((g) => {
+        const it = g.itens.filter((i) => !q || norm(i.rotulo + ' ' + (i.chaves || '')).includes(norm(q)));
+        if (!it.length) return;
+        html += `<div class="menu__grupo" role="presentation">${esc(g.nome)}</div>`;
+        it.forEach((i) => {
+          const idx = visiveis.push(i) - 1;
+          html += `<div class="menu__item" role="option" id="pal-${idx}" data-idx="${idx}" aria-selected="false">${ic(i.icone)}<span class="trunca">${marca(i.rotulo, q)}</span>${i.atalho ? `<span class="kbds">${i.atalho.map((k) => `<kbd class="kbd">${k}</kbd>`).join('')}</span>` : i.meta ? `<span class="menu__meta">${esc(i.meta)}</span>` : ''}</div>`;
+        });
+      });
+      lista.innerHTML = html || `<div class="paleta__vazio"><p><strong>Nada encontrado para “${esc(q)}”.</strong></p><p>Tente “render”, “projeto” ou “créditos”.</p></div>`;
+      ativo = 0; marcaAtivo();
+    }
+    function marcaAtivo() {
+      $$('.menu__item', lista).forEach((el) => { const a = +el.dataset.idx === ativo; el.classList.toggle('is-ativo', a); el.setAttribute('aria-selected', a); if (a) rolaDentro(lista, el); });
+      input.setAttribute('aria-activedescendant', visiveis.length ? `pal-${ativo}` : '');
+    }
+    function executa(i) { const it = visiveis[i]; if (!it) return; if (dlg.open && !dlg.classList.contains('paleta--estatica')) dlg.close(); it.acao && requestAnimationFrame(() => it.acao()); }
+    input.addEventListener('input', render);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); ativo = (ativo + 1) % Math.max(1, visiveis.length); marcaAtivo(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); ativo = (ativo - 1 + visiveis.length) % Math.max(1, visiveis.length); marcaAtivo(); }
+      if (e.key === 'Enter') { e.preventDefault(); executa(ativo); }
+    });
+    lista.addEventListener('mousemove', (e) => { const it = e.target.closest?.('[data-idx]'); if (it && +it.dataset.idx !== ativo) { ativo = +it.dataset.idx; marcaAtivo(); } });
+    lista.addEventListener('click', (e) => { const it = e.target.closest?.('[data-idx]'); if (it) executa(+it.dataset.idx); });
+    render();
+    return {
+      abrir() { input.value = ''; render(); dlg.showModal(); input.focus(); },
+    };
+  };
+
+  /* ---- Inicialização ---------------------------------------------------- */
+  B7.iniciar = function () {
+    B7.tema.iniciar();
+    $$('.faixa').forEach(atualizaFaixa);
+    $$('[data-contador]').forEach(atualizaContador);
+    $$('[data-indeterminado]').forEach((c) => (c.indeterminate = true));
+    $$('.codigo').forEach(B7.codigo);
+    $$('[data-cronometro]').forEach(B7.cronometro);
+    $$('[data-paginacao]').forEach((p) => B7.paginacao(p, +p.dataset.atual || 1, +p.dataset.paginacao));
+    $$('[role="tablist"]').forEach((l) => { const s = l.querySelector('[aria-selected="true"]'); $$('[role="tab"]', l).forEach((a) => (a.tabIndex = a === s ? 0 : -1)); });
+  };
+
+  window.B7 = B7;
+})();
+
+</script>
+<script>
+  B7.iniciar();
+
+  function copiarTexto(btn) {
+    const card = btn.closest('.cartao');
+    const box = card.querySelector('.caixa-roteiro');
+    if (!box) return;
+    const txt = box.innerText.trim();
+    navigator.clipboard.writeText(txt).then(() => {
+      const toast = document.getElementById('toast-msg');
+      toast.classList.add('is-ativo');
+      setTimeout(() => toast.classList.remove('is-ativo'), 2200);
+    });
+  }
+</script>
+</body>
+</html>
