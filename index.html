@@ -1399,7 +1399,8 @@ dialog { color: var(--texto); }
       <a href="#estrategia">1. Estratégia</a>
       <a href="#carrossel">2. Tudo sobre Carrossel</a>
       <a href="#reels">3. Tudo sobre Reels</a>
-      <a href="#calendarizacao">4. Calendarização</a>
+      <a href="#formatos-narrativos">4. Matriz de Formatos</a>
+      <a href="#calendarizacao">5. Calendarização</a>
     </nav>
     <button class="btn btn--discreto btn--icone" type="button" data-alternar-tema aria-label="Alternar tema" style="margin-left:8px;">
       <svg class="ic ic--p" aria-hidden="true"><use href="#i-lua"/></svg>
@@ -1953,20 +1954,280 @@ dialog { color: var(--texto); }
 
 
   <!-- ================================================================= -->
-  <!-- 4. CALENDARIZAÇÃO                                                 -->
+  <!-- 4. MATRIZ DE FORMATOS NARRATIVOS & GANCHOS                        -->
+  <!-- ================================================================= -->
+  <section id="formatos-narrativos" class="secao">
+    <div class="envelope pilha" style="gap:var(--e-6);">
+      
+      <div class="cab-secao">
+        <span class="t-sobrelinha suave">04 · Narrativa e Retenção</span>
+        <h2 class="t-h1">Matriz de Formatos Narrativos & Ganchos</h2>
+        <p>Os 9 formatos narrativos e fórmulas de abertura aplicados a Vídeos (Reels) e Carrosséis, no território <em>"A imagem é o que aprova o projeto"</em>.</p>
+      </div>
+
+      <!-- 4.1 A Tabela da Matriz -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.1 Mapeamento Cruzado dos 9 Formatos Narrativos</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          Cada formato combina uma dinâmica psicológica comprovada no feed com a aplicação direta no dia a dia da 9barra7:
+        </p>
+
+        <div class="cartao" style="padding:0;overflow-x:auto;">
+          <table class="tabela-quadro">
+            <thead>
+              <tr>
+                <th># Formato</th>
+                <th>Dinâmica Psicológica</th>
+                <th>Ideia de Gancho Original</th>
+                <th>Conexão no 9barra7</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Experiment</strong></td>
+                <td>O criador como cobaia de um teste real com risco visível. Curiosidade imediata pelo desfecho.</td>
+                <td><em>"Tentei fazer o vídeo de lançamento de um produto só conversando com o Claude. Sem editor e sem saber animar. Deu nisso."</em></td>
+                <td><strong>F5 · Bastidor</strong> / <strong>Carrossel E</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Teste de estresse de render (luz difícil, vidro) sem esconder imperfeições.</span></td>
+              </tr>
+              <tr>
+                <td><strong>2. POV / Commentary</strong></td>
+                <td>Paradoxo e opinião forte de trincheira. Quebra de expectativa técnica logo no primeiro segundo.</td>
+                <td><em>"O Claude não consegue gerar um segundo sequer de vídeo. Mesmo assim, ele está virando o melhor editor que eu já usei."</em></td>
+                <td><strong>F3 · Contradição</strong> / <strong>Carrossel D</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Desmistificação: "A IA não sabe arquitetura, mas aprova projetos na primeira reunião."</span></td>
+              </tr>
+              <tr>
+                <td><strong>3. Storytelling</strong></td>
+                <td>Autoridade de campo + contraste brutal de tempo e esforço entre o método antigo e o atual.</td>
+                <td><em>"Minha primeira empresa existia pra uma coisa só: automatizar edição de vídeo pra Netflix e Itaú. Eu vendi essa empresa. Hoje o Claude faz isso numa conversa."</em></td>
+                <td><strong>F5 · Bastidor</strong> / <strong>Carrossel E</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Virar madrugadas esperando render no V-Ray vs resolver em 2 minutos na IA.</span></td>
+              </tr>
+              <tr>
+                <td><strong>4. Tutorial</strong></td>
+                <td>Promessa de resultado claro e direto, removendo a barreira técnica habitual (sem complicação).</td>
+                <td><em>"Como fazer um vídeo animado do zero só conversando com o Claude, mesmo sem saber editar nada."</em></td>
+                <td><strong>F4 · Tela</strong> / <strong>Carrossel B</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Passo a passo prático: do modelo cru do SketchUp ao render final em 3 passos.</span></td>
+              </tr>
+              <tr>
+                <td><strong>5. Comparison</strong></td>
+                <td>Desafio de percepção lado a lado (A vs B). Provoca o olhar crítico do arquiteto.</td>
+                <td><em>"Vídeo de agência vs vídeo feito em 10 minutos com o Claude. Você consegue dizer qual é qual?"</em></td>
+                <td><strong>F6 · Comparação</strong> / <strong>Carrossel C</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Render de 8 horas no V-Ray vs 2 minutos no 9barra7: você sabe dizer qual é qual?</span></td>
+              </tr>
+              <tr>
+                <td><strong>6. Breakdown</strong></td>
+                <td>Desconstrução analítica de um mecanismo invisível ("Como isso funciona por trás?").</td>
+                <td><em>"O Claude não sabe gerar vídeo. Então como ele faz vídeos? Existem 4 caminhos, e só um deles é mágica."</em></td>
+                <td><strong>F4 / F1</strong> / <strong>Carrossel D/B</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Anatomia do render: 3 regras de geometria que impedem a IA de derreter móveis.</span></td>
+              </tr>
+              <tr>
+                <td><strong>7. Transformação</strong></td>
+                <td>Antes e Depois extremo: entrada simples (print cru) e saída profissional impressionante.</td>
+                <td><em>"Peguei um print sem graça do meu app e transformei num vídeo de lançamento de 30 segundos."</em></td>
+                <td><strong>F2 · Resultado Antes</strong> / <strong>Carrossel C/E</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Do print cinza sem textura do SketchUp ao render que vendeu o apartamento.</span></td>
+              </tr>
+              <tr>
+                <td><strong>8. Case Breakdown</strong></td>
+                <td>Estudo de caso real com números e a virada técnica que destravou o resultado.</td>
+                <td><em>"Uma ferramenta gratuita postou um vídeo feito por IA e passou de 6 milhões de views em dias. O vídeo não era o produto, era a prova."</em></td>
+                <td><strong>F5 · Bastidor</strong> / <strong>Carrossel E</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">Projeto travado há 3 semanas aprovado na hora mudando a direção da luz.</span></td>
+              </tr>
+              <tr>
+                <td><strong>9. Listicle</strong></td>
+                <td>Lista de alta utilidade + aviso realista de limitação (gera credibilidade técnica imediata).</td>
+                <td><em>"4 tipos de vídeo que você já consegue fazer com o Claude hoje, e 1 que ele ainda não faz."</em></td>
+                <td><strong>F1 · Erro Custoso</strong> / <strong>Carrossel B</strong><br><span style="color:var(--texto-2);font-size:var(--t-legenda-tam);">4 coisas que a IA domina no render e 1 que se tentar vai passar vergonha com o cliente.</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4.2 Scripts Prontos com Botão de Copiar -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.2 Scripts e Embalagens Prontas para Uso (Reels & Carrosséis)</h3>
+        <p class="t-corpo" style="color:var(--texto-2);">
+          Clique em copiar para extrair a fala completa para o Reels ou use o roteiro de lâminas para alimentar o carrossel:
+        </p>
+
+        <div class="grade-cards">
+          <!-- Card 1: Experiment -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">01 · Experiment (F5 · Bastidor / Carrossel E)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">O teste de estresse em projeto real</h4>
+            <div class="caixa-roteiro">
+              "Tentei renderizar uma fachada de vidro ao meio-dia só com prompt, sem mexer no modelo 3D. Sem V-Ray e sem pós-produção. Deu nisso. Todo mundo diz que IA derrete reflexo e estoura luz natural, mas o segredo tá em calibrar a difusão da luz e travar a geometria da esquadria. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> Capa com imagem do teste + slides mostrando os 3 erros até o render final aprovado.
+            </p>
+          </div>
+
+          <!-- Card 2: POV / Commentary -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">02 · POV / Commentary (F3 · Contradição / Carrossel D)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">A IA não sabe nada de arquitetura</h4>
+            <div class="caixa-roteiro">
+              "A inteligência artificial não sabe absolutamente nada de arquitetura. Mesmo assim, ela tá aprovando meus projetos na primeira reunião. Ela não sabe espessura de alvenaria e não sabe o que é MDF naval. Se você pedir pra ela inventar, sai aberração. Mas quando você usa o teu modelo como âncora, a IA vira o melhor assistente de luz e textura que você já teve. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> Tese em 2 tons: <em>"A IA não projeta. Ela apenas calcula superfícies sobre o que você modelou."</em>
+            </p>
+          </div>
+
+          <!-- Card 3: Storytelling -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">03 · Storytelling (F5 · Bastidor / Carrossel E)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">O sofrimento antigo vs a agilidade com método</h4>
+            <div class="caixa-roteiro">
+              "Passei cinco anos virando madrugada na frente do computador esperando o V-Ray terminar de renderizar pra conseguir apresentar pro cliente. Se ele pedisse pra trocar o piso, eram mais dois dias perdidos. Hoje eu resolvo essa mesma alteração em dois minutos mantendo a fidelidade exata do espaço. Apresentação rápida não é pressa: é respeito pelo teu tempo e pelo projeto. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> Linha do tempo visual comparando a rotina de 48h de retrabalho com o ajuste ao vivo na reunião.
+            </p>
+          </div>
+
+          <!-- Card 4: Tutorial -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">04 · Tutorial (F4 · Gravação de Tela / Carrossel B)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Do SketchUp ao render final em 3 passos</h4>
+            <div class="caixa-roteiro">
+              "Como transformar um modelo cru do SketchUp num render de catálogo em três passos, sem distorcer nenhuma parede. Primeiro: exporta com safe frame e câmera ortogonal. Segundo: define o material com desgaste em vez de pedir realismo vago. Terceiro: trava a geometria no mapa de profundidade antes de renderizar. Olha a precisão dessa marcenaria. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> 1 lâmina por passo técnico, com print da interface e checklist final de conferência.
+            </p>
+          </div>
+
+          <!-- Card 5: Comparison -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">05 · Comparison (F6 · Comparação / Carrossel C)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">V-Ray vs IA: você sabe dizer qual é qual?</h4>
+            <div class="caixa-roteiro">
+              "Render de 8 horas no V-Ray vs render de 2 minutos com IA: você consegue dizer qual deles é qual? Repara no reflexo do porcelanato e na iluminação difusa da marcenaria ripada. A maioria não percebe a diferença porque o que manda na qualidade não é o tempo de máquina, é a direção de arte do arquiteto. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> Pares de lâminas com cartões arredondados e selos [SketchUp] e [Render IA].
+            </p>
+          </div>
+
+          <!-- Card 6: Breakdown -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">06 · Breakdown (F4 / F1 / Carrossel D/B)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Anatomia de um render que aprova</h4>
+            <div class="caixa-roteiro">
+              "A IA não sabe ler planta nem espessura de parede. Então como ela acertou exatamente essa marcenaria? Existem três regras: linha de horizonte na altura do olho humano, oclusão de ambiente na quina do forro e oclusão de contato no rodapé. Sem isso, a gaveta se funde e o puxador derrete. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> Círculos e anotações destacando os 3 pontos anatômicos que o olho do cliente avalia.
+            </p>
+          </div>
+
+          <!-- Card 7: Transformação -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">07 · Transformação (F2 · Resultado Antes / Carrossel C/E)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">Do print sem graça à venda fechada</h4>
+            <div class="caixa-roteiro">
+              "Peguei um print sem textura do SketchUp e transformei no render que vendeu um apartamento decorado. O cliente não tem obrigação de entender desenho em linhas pretas: ele precisa sentir como é morar no espaço. Olha como a luz certa faz ele visualizar a casa pronta e assinar o contrato sem hesitar. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> Sequência progressiva: Wireframe cru → Infusão de luz → Materiais reais → Cena aprovada.
+            </p>
+          </div>
+
+          <!-- Card 8: Case Breakdown -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">08 · Case Breakdown (F5 · Bastidor / Carrossel E)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">O projeto travado há 3 semanas aprovado na hora</h4>
+            <div class="caixa-roteiro">
+              "Um escritório parceiro tava há três semanas travado na aprovação dessa suíte. O cliente achava o ambiente frio, mas não sabia explicar por quê. Bastou mudar a temperatura da luz pra 2700K e ajustar o reflexo do piso na IA: aprovado em 20 minutos sem mexer na modelagem. O render não é vaidade: é o que aprova o projeto. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> Print do dilema do cliente + comparativo de luz fria vs luz quente + print da aprovação.
+            </p>
+          </div>
+
+          <!-- Card 9: Listicle -->
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <div class="linha" style="justify-content:space-between;align-items:center;">
+              <span class="t-sobrelinha suave">09 · Listicle (F1 · Erro Custoso / Carrossel B)</span>
+              <button class="btn btn--discreto btn--p" onclick="copiarTexto(this)">Copiar</button>
+            </div>
+            <h4 class="t-h4">4 acertos da IA e 1 erro que queima o projeto</h4>
+            <div class="caixa-roteiro">
+              "Quatro coisas que a IA já faz com perfeição no teu render e uma que se você tentar vai passar vergonha com o cliente. Ela já domina reflexo de vidro, textura de tecido, vegetação de fundo e luz de entardecer. Mas se você tentar renderizar marcenaria sob medida sem guia geométrica, os armários vão sair tortos e a gaveta vai colar. Eu sou a Marilia, do 9barra7, e te ensino a renderizar com IA respeitando e valorizando o teu projeto. Me acompanha aqui pra ver mais."
+            </div>
+            <p class="t-legenda" style="color:var(--texto-3);">
+              <strong>No Carrossel:</strong> 4 lâminas verdes de acerto e a 5ª lâmina em alerta vermelho com o erro fatal.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.3 Checklist de Rastreio Anti-Slop -->
+      <div class="pilha" style="gap:var(--e-3);">
+        <h3 class="t-h3">4.3 Regras de Ouro de Execução (Checklist DNA)</h3>
+        <div class="grade-cards">
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Regra 1 · Gancho Firme</span>
+            <strong class="t-h4">Risco ou Ganho em 3s</strong>
+            <p class="t-corpo-p" style="color:var(--texto-2);">O gancho precisa mostrar na primeira frase o que o arquiteto ganha ou o que ele corre risco de perder se deslizar a tela.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Regra 2 · Pronomes Calibrados</span>
+            <strong class="t-h4">"Você" no Gancho, "Tu" no Corpo</strong>
+            <p class="t-corpo-p" style="color:var(--texto-2);">O gancho inicial usa "você" para alcance amplo e retenção fria; o miolo e a locução da Marilia usam "tu" e "a gente" natural.</p>
+          </div>
+          <div class="cartao pilha" style="gap:var(--e-2);">
+            <span class="t-sobrelinha suave">Regra 3 · Protagonismo</span>
+            <strong class="t-h4">O Projeto é o Herói</strong>
+            <p class="t-corpo-p" style="color:var(--texto-2);">A IA nunca é vendida como mágica independente. O arquiteto é o diretor de arte que comanda e a ferramenta apenas executa a luz e o acabamento.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================================================================= -->
+  <!-- 5. CALENDARIZAÇÃO                                                 -->
   <!-- ================================================================= -->
   <section id="calendarizacao" class="secao">
     <div class="envelope pilha" style="gap:var(--e-6);">
       
       <div class="cab-secao">
-        <span class="t-sobrelinha suave">04 · Operação</span>
+        <span class="t-sobrelinha suave">05 · Operação</span>
         <h2 class="t-h1">Calendarização</h2>
         <p>A grade semanal 3x3, a rotação das lógicas de raciocínio e a esteira quinzenal.</p>
       </div>
 
-      <!-- 4.1 Grade 3x3 -->
+      <!-- 5.1 Grade 3x3 -->
       <div class="pilha" style="gap:var(--e-3);">
-        <h3 class="t-h3">4.1 A Grade Semanal Fixa (3 Vídeos + 3 Carrosséis)</h3>
+        <h3 class="t-h3">5.1 A Grade Semanal Fixa (3 Vídeos + 3 Carrosséis)</h3>
         <p class="t-corpo" style="color:var(--texto-2);">
           Alternância estrita de segunda a sábado. Domingo é dia de respiro do feed com rotina leve nos Stories.
         </p>
@@ -2036,9 +2297,9 @@ dialog { color: var(--texto); }
         </div>
       </div>
 
-      <!-- 4.2 O Calendário Anual em Loop -->
+      <!-- 5.2 O Calendário Anual em Loop -->
       <div class="pilha" style="gap:var(--e-3);">
-        <h3 class="t-h3">4.2 O Mapa Anual de Campanhas Sobe (Looping Perpétuo)</h3>
+        <h3 class="t-h3">5.2 O Mapa Anual de Campanhas Sobe (Looping Perpétuo)</h3>
         <div class="cartao" style="padding:0;overflow:hidden;">
           <table class="tabela-quadro">
             <thead>
@@ -2091,9 +2352,9 @@ dialog { color: var(--texto); }
         </div>
       </div>
 
-      <!-- 4.3 Esteira Quinzenal RACI -->
+      <!-- 5.3 Esteira Quinzenal RACI -->
       <div class="pilha" style="gap:var(--e-3);">
-        <h3 class="t-h3">4.3 Esteira Operacional: A Sprint Quinzenal de 14 Dias</h3>
+        <h3 class="t-h3">5.3 Esteira Operacional: A Sprint Quinzenal de 14 Dias</h3>
         <p class="t-corpo" style="color:var(--texto-2);">
           Como a equipe fecha 6 Reels e 6 Carrosséis com um único bloco de gravação de duas horas da Marilia:
         </p>
